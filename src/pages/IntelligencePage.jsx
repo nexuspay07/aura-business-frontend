@@ -5,13 +5,12 @@ import {
   Plus,
   Send,
   Sparkles,
-  Brain,
   TrendingUp,
   AlertTriangle,
   ShieldCheck,
 } from "lucide-react";
 
-import { createIntelligenceSession } from "../services/api";
+import api from "../services/api";
 
 export default function IntelligencePage() {
 
@@ -28,12 +27,12 @@ export default function IntelligencePage() {
   ]);
 
 
-
   // =====================================================
   // HANDLE SEND
   // =====================================================
 
   const handleSend = async () => {
+
     if (!prompt.trim()) return;
 
     const userMessage = {
@@ -47,47 +46,75 @@ export default function IntelligencePage() {
 
     try {
 
-      // -----------------------------------------
-      // TEMP AI RESPONSE
-      // -----------------------------------------
+      // =====================================================
+      // REAL AI CHAT ENGINE
+      // =====================================================
 
-      const aiSummary =
-        "Focus on niche specialization before attempting broad market competition.";
-
-      const aiResponse = {
-        role: "assistant",
-        content: aiSummary,
-      };
-
-
-
-      // -----------------------------------------
-      // SAVE TO BACKEND
-      // -----------------------------------------
-
-      await createIntelligenceSession({
+      const response = await api.post("/chat", {
+        message: prompt,
+        session_id: "workspace_session",
         organization_id: 1,
         workspace_id: 1,
-        title: prompt,
-        goal: prompt,
-        summary: aiSummary,
-        recommended_move:
-          "Enter through one high-value niche first.",
-        risk_level: "medium",
-        business_model: "service_business",
       });
 
+      console.log("AURA RESPONSE:", response.data);
+
+      const cognition = response.data?.response || {};
+
+const aiResponse = {
+  role: "assistant",
+
+  content: `
+STRATEGIC SUMMARY
+${cognition.summary || "No strategic summary available."}
+
+━━━━━━━━━━━━━━━━━━
+
+RECOMMENDED STRATEGY
+${cognition.recommended_strategy || "N/A"}
+
+━━━━━━━━━━━━━━━━━━
+
+CONFIDENCE
+${cognition.confidence || "N/A"}
+
+━━━━━━━━━━━━━━━━━━
+
+MARKET INSIGHT
+${cognition.market_insight || "N/A"}
+
+━━━━━━━━━━━━━━━━━━
+
+EXECUTION FOCUS
+${cognition.execution_focus || "N/A"}
+
+━━━━━━━━━━━━━━━━━━
+
+RISK WARNING
+${cognition.warning || "No major risks detected."}
+
+━━━━━━━━━━━━━━━━━━
+
+REINFORCEMENT STATUS
+${cognition.reinforcement_status || "No reinforcement data."}
+
+━━━━━━━━━━━━━━━━━━
+
+RECOMMENDATION
+${cognition.reinforcement_recommendation || "No recommendation available."}
+`,
+};
 
 
-      // -----------------------------------------
+      // =====================================================
       // ADD AI MESSAGE
-      // -----------------------------------------
+      // =====================================================
 
       setMessages((prev) => [...prev, aiResponse]);
 
     } catch (error) {
 
-      console.error(error);
+      console.error("AI ERROR:", error);
 
       setMessages((prev) => [
         ...prev,
@@ -233,7 +260,7 @@ export default function IntelligencePage() {
                 }`}
               >
 
-                <p className="leading-relaxed">
+                <p className="leading-relaxed whitespace-pre-wrap">
                   {message.content}
                 </p>
 
@@ -273,7 +300,8 @@ export default function IntelligencePage() {
 
             <button
               onClick={handleSend}
-              className="w-14 h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white shadow-lg hover:scale-105 transition"
+              disabled={loading}
+              className="w-14 h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white shadow-lg hover:scale-105 transition disabled:opacity-50"
             >
               <Send size={20} />
             </button>

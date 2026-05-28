@@ -7,14 +7,23 @@ import {
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import IntelligencePage from "./pages/IntelligencePage";
 
 import {
   AuthProvider,
   useAuth,
 } from "./context/AuthContext";
 
+
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const {
+    isAuthenticated,
+    loading,
+  } = useAuth();
+
+  if (loading) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/" />;
@@ -23,11 +32,19 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
 
+      {/* LOGIN */}
+      <Route
+        path="/"
+        element={<Login />}
+      />
+
+
+      {/* DASHBOARD */}
       <Route
         path="/dashboard"
         element={
@@ -36,9 +53,22 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+
+      {/* INTELLIGENCE WORKSPACE */}
+      <Route
+        path="/intelligence"
+        element={
+          <ProtectedRoute>
+            <IntelligencePage />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 }
+
 
 export default function App() {
   return (
