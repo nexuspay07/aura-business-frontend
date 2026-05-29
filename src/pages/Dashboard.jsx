@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { getWorkspaceSessions } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadSessions();
@@ -36,6 +38,13 @@ export default function DashboardPage() {
             AI-powered enterprise intelligence environment
           </p>
         </div>
+
+        <button
+  onClick={() => navigate("/intelligence")}
+  className="bg-black text-white px-6 py-3 rounded-xl"
+>
+  Open AURA Intelligence Workspace
+</button>
 
 
 
