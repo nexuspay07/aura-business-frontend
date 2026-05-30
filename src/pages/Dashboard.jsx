@@ -39,13 +39,6 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <button
-  onClick={() => navigate("/intelligence")}
-  className="bg-black text-white px-6 py-3 rounded-xl"
->
-  Open AURA Intelligence Workspace
-</button>
-
 
 
         {/* STATS */}
@@ -221,9 +214,12 @@ export default function DashboardPage() {
               patterns.
             </p>
 
-            <button className="mt-8 bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition">
-              Open Intelligence
-            </button>
+            <button
+               onClick={() => navigate("/intelligence")}
+                className="mt-8 bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition"
+                 >
+                Open Intelligence
+</button>
 
           </div>
 
