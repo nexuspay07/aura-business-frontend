@@ -7,13 +7,13 @@ import {
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import IntelligencePage from "./pages/IntelligencePage";
+
+import AuraCommandCenter from "./pages/AuraCommandCenter";
 
 import {
   AuthProvider,
   useAuth,
 } from "./context/AuthContext";
-
 
 function ProtectedRoute({ children }) {
   const {
@@ -32,7 +32,6 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-
 function AppRoutes() {
   return (
     <Routes>
@@ -42,7 +41,6 @@ function AppRoutes() {
         path="/"
         element={<Login />}
       />
-
 
       {/* DASHBOARD */}
       <Route
@@ -54,13 +52,12 @@ function AppRoutes() {
         }
       />
 
-
-      {/* INTELLIGENCE WORKSPACE */}
+      {/* AURA COMMAND CENTER */}
       <Route
         path="/intelligence"
         element={
           <ProtectedRoute>
-            <IntelligencePage />
+            <AuraCommandCenter />
           </ProtectedRoute>
         }
       />
@@ -68,7 +65,6 @@ function AppRoutes() {
     </Routes>
   );
 }
-
 
 export default function App() {
   return (
