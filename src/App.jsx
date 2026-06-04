@@ -15,6 +15,10 @@ import {
   useAuth,
 } from "./context/AuthContext";
 
+import {
+  OrganizationProvider,
+} from "./context/OrganizationContext";
+
 function ProtectedRoute({ children }) {
   const {
     isAuthenticated,
@@ -69,9 +73,15 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+
+      <OrganizationProvider>
+
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+
+      </OrganizationProvider>
+
     </AuthProvider>
   );
 }

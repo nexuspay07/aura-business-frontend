@@ -2,11 +2,20 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { getWorkspaceSessions } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import {
+  useOrganization,
+} from "../context/OrganizationContext";
 
 export default function DashboardPage() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const {
+  organizations,
+  activeOrganization,
+  setActiveOrganization,
+} = useOrganization();
 
   useEffect(() => {
     loadSessions();
@@ -30,14 +39,56 @@ export default function DashboardPage() {
 
         {/* HEADER */}
         <div>
-          <h1 className="text-4xl font-bold text-gray-900">
-            AURA Workspace
-          </h1>
+         <h1 className="text-4xl font-bold text-gray-900">
+  {activeOrganization
+    ? activeOrganization.name
+    : "AURA Workspace"}
+</h1>
 
           <p className="text-gray-500 mt-2">
             AI-powered enterprise intelligence environment
           </p>
         </div>
+
+        <div className="mt-4">
+
+  <select
+    value={
+      activeOrganization?.id || ""
+    }
+    onChange={(e) => {
+
+      const selected =
+        organizations.find(
+          (org) =>
+            org.id ===
+            Number(e.target.value)
+        );
+
+      setActiveOrganization(
+        selected
+      );
+    }}
+    className="
+      px-4 py-2
+      border border-gray-200
+      rounded-xl
+      bg-white
+    "
+  >
+
+    {organizations.map((org) => (
+      <option
+        key={org.id}
+        value={org.id}
+      >
+        {org.name}
+      </option>
+    ))}
+
+  </select>
+
+</div>
 
 
 
