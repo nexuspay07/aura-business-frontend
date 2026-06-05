@@ -18,12 +18,21 @@ export default function DashboardPage() {
 } = useOrganization();
 
   useEffect(() => {
+
+  if (activeOrganization) {
     loadSessions();
-  }, []);
+  }
+
+}, [activeOrganization]);
 
   const loadSessions = async () => {
     try {
-      const data = await getWorkspaceSessions(1);
+      const workspaceId = 1;
+
+const data =
+  await getWorkspaceSessions(
+    workspaceId
+  );
 
       setSessions(data.sessions || []);
     } catch (error) {
@@ -39,7 +48,7 @@ export default function DashboardPage() {
 
         {/* HEADER */}
         <div>
-         <h1 className="text-4xl font-bold text-gray-900">
+       <h1 className="text-4xl font-bold text-gray-900">
   {activeOrganization
     ? activeOrganization.name
     : "AURA Workspace"}
@@ -48,6 +57,14 @@ export default function DashboardPage() {
           <p className="text-gray-500 mt-2">
             AI-powered enterprise intelligence environment
           </p>
+
+          <p className="text-sm text-gray-500 mt-2">
+
+  Workspace:
+  {" "}
+  Main Workspace
+
+</p>
         </div>
 
         <div className="mt-4">
@@ -117,8 +134,8 @@ export default function DashboardPage() {
             </p>
 
             <h2 className="text-4xl font-bold mt-3 text-gray-900">
-              1
-            </h2>
+  {organizations.length}
+</h2>
 
             <p className="text-blue-500 text-sm mt-3">
               System operational

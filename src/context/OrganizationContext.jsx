@@ -7,6 +7,7 @@ import {
 
 import {
   getOrganizations,
+  getToken,
 } from "../services/api";
 
 const OrganizationContext =
@@ -31,8 +32,17 @@ export function OrganizationProvider({
   ] = useState(true);
 
   useEffect(() => {
+
+  const token =
+    getToken();
+
+  if (token) {
     loadOrganizations();
-  }, []);
+  } else {
+    setLoading(false);
+  }
+
+}, []);
 
   const loadOrganizations =
     async () => {
