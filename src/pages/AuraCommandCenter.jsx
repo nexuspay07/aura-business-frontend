@@ -36,9 +36,13 @@ export default function AuraCommandCenter() {
       });
 
       console.log(
-        "AURA COMMAND CENTER:",
-        response.data
-      );
+  "FULL RESPONSE:",
+  JSON.stringify(
+    response.data,
+    null,
+    2
+  )
+);
 
       setCognition(
         response.data?.response || {}
