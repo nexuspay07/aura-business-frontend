@@ -44,9 +44,19 @@ export default function AuraCommandCenter() {
   )
 );
 
-      setCognition(
-        response.data?.response || {}
-      );
+     console.log(
+  "FULL RESPONSE:",
+  response.data
+);
+
+console.log(
+  "RESPONSE OBJECT:",
+  response.data.response
+);
+
+setCognition(
+  response.data.response
+);
 
     } catch (error) {
 
@@ -140,10 +150,65 @@ export default function AuraCommandCenter() {
             Executive Intelligence
           </h2>
 
-          <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-            {cognition.summary ||
-              "Awaiting intelligence request..."}
-          </p>
+          {cognition.summary ? (
+  <div className="space-y-4">
+
+    <div>
+      <h3 className="font-semibold">
+        Executive Summary
+      </h3>
+      <p>{cognition.summary}</p>
+    </div>
+
+    <div>
+      <h3 className="font-semibold">
+        Market Insight
+      </h3>
+      <p>{cognition.market_insight}</p>
+    </div>
+
+    <div>
+      <h3 className="font-semibold">
+        Execution Focus
+      </h3>
+      <p>{cognition.execution_focus}</p>
+    </div>
+
+    <div>
+      <h3 className="font-semibold">
+        Growth Projection
+      </h3>
+      <p>{cognition.growth_projection}</p>
+    </div>
+
+    <div>
+      <h3 className="font-semibold">
+        Strategic Warning
+      </h3>
+      <p>{cognition.warning}</p>
+    </div>
+
+    <div>
+      <h3 className="font-semibold">
+        Next Steps
+      </h3>
+
+      <ul className="list-disc ml-6">
+        {(cognition.next_steps || [])
+          .map((step, index) => (
+            <li key={index}>
+              {step}
+            </li>
+          ))}
+      </ul>
+    </div>
+
+  </div>
+) : (
+  <p>
+    Awaiting intelligence request...
+  </p>
+)}
 
         </div>
 
