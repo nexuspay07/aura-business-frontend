@@ -147,63 +147,78 @@ setCognition(
         <div className="mt-6 bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
 
           <h2 className="text-xl font-bold text-slate-900 mb-4">
-            Executive Intelligence
-          </h2>
+  Executive Intelligence
+</h2>
 
-          {cognition.summary ? (
-  <div className="space-y-4">
+{cognition.executive_summary ? (
+  <div className="space-y-6">
 
-    <div>
-      <h3 className="font-semibold">
-        Executive Summary
-      </h3>
-      <p>{cognition.summary}</p>
-    </div>
-
-    <div>
-      <h3 className="font-semibold">
-        Market Insight
-      </h3>
-      <p>{cognition.market_insight}</p>
-    </div>
-
-    <div>
-      <h3 className="font-semibold">
-        Execution Focus
-      </h3>
-      <p>{cognition.execution_focus}</p>
-    </div>
-
-    <div>
-      <h3 className="font-semibold">
-        Growth Projection
-      </h3>
-      <p>{cognition.growth_projection}</p>
-    </div>
-
-    <div>
-      <h3 className="font-semibold">
-        Strategic Warning
-      </h3>
-      <p>{cognition.warning}</p>
-    </div>
-
-    <div>
-      <h3 className="font-semibold">
-        Next Steps
-      </h3>
-
-      <ul className="list-disc ml-6">
-        {(cognition.next_steps || [])
-          .map((step, index) => (
-            <li key={index}>
-              {step}
-            </li>
-          ))}
-      </ul>
-    </div>
-
+  <div>
+    <h3 className="font-semibold">
+      Executive Summary
+    </h3>
+    <p>{cognition.executive_summary}</p>
   </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Strategic Position
+    </h3>
+    <p>{cognition.strategic_position}</p>
+  </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Market Analysis
+    </h3>
+    <p>{cognition.market_analysis}</p>
+  </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Growth Strategy
+    </h3>
+    <p>{cognition.growth_strategy}</p>
+  </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Operational Plan
+    </h3>
+    <p>{cognition.operational_plan}</p>
+  </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Growth Projection
+    </h3>
+    <p>{cognition.growth_projection}</p>
+  </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Strategic Warning
+    </h3>
+    <p>{cognition.strategic_warning}</p>
+  </div>
+
+  <div>
+    <h3 className="font-semibold">
+      Next Steps
+    </h3>
+
+    <ul className="list-disc ml-6">
+      {(cognition.next_steps || []).map(
+        (step, index) => (
+          <li key={index}>
+            {step}
+          </li>
+        )
+      )}
+    </ul>
+  </div>
+
+</div>
 ) : (
   <p>
     Awaiting intelligence request...
