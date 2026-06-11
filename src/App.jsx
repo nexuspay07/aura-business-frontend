@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 
 import AuraCommandCenter from "./pages/AuraCommandCenter";
+import SessionsPage from "./pages/SessionsPage";
 
 import {
   AuthProvider,
@@ -45,6 +46,15 @@ function AppRoutes() {
         path="/"
         element={<Login />}
       />
+
+      <Route
+  path="/sessions"
+  element={
+    <ProtectedRoute>
+      <SessionsPage />
+    </ProtectedRoute>
+  }
+/>
 
       {/* DASHBOARD */}
       <Route
