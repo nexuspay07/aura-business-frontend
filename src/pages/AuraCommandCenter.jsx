@@ -90,6 +90,16 @@ console.log(
   cognition
 );
 
+console.log(
+  "recommended_strategy:",
+  cognition.recommended_strategy
+);
+
+console.log(
+  "TYPE:",
+  typeof cognition.recommended_strategy
+);
+
 setCognition(cognition);
 
     } catch (error) {
@@ -112,8 +122,10 @@ setCognition(cognition);
         <ExecutiveMissionCard
           objective={prompt}
           strategy={
-            cognition.recommended_strategy
-          }
+    typeof cognition.recommended_strategy === "object"
+        ? cognition.recommended_strategy.name
+        : cognition.recommended_strategy
+}
           confidence={
             cognition.confidence
               ? Math.round(
@@ -121,9 +133,11 @@ setCognition(cognition);
                 )
               : 0
           }
-          risk={
-            cognition.risk_level
-          }
+         risk={
+    typeof cognition.risk_level === "object"
+        ? cognition.risk_level.level
+        : cognition.risk_level
+}
         />
 
         <StrategicActionsCard
