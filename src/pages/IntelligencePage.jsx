@@ -59,7 +59,23 @@ export default function IntelligencePage() {
 
       console.log("AURA RESPONSE:", response.data);
 
-      const cognition = response.data?.response || {};
+      const cognition = {
+
+  ...response.data.chat_response,
+
+  ...response.data.executive_advisor,
+
+  ...response.data.conversational_response,
+
+  ...response.data.standardized_output,
+
+  ...response.data.executive_response,
+
+  ...response.data.executive_synthesis,
+
+  ...response.data.final_response
+
+};
 
 const aiResponse = {
   role: "assistant",

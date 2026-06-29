@@ -18,7 +18,25 @@ export default function AuraCommandCenter() {
 
   const [loading, setLoading] = useState(false);
 
-  const [cognition, setCognition] = useState({});
+  const [cognition, setCognition] =
+useState({
+  executive_summary: "",
+  recommended_strategy: "",
+  confidence: 0,
+  risk_level: "",
+  execution_focus: "",
+  reinforcement_recommendation: "",
+  market_insight: "",
+  warning: "",
+  reinforcement_status: "",
+  strategic_position: "",
+  market_analysis: "",
+  growth_strategy: "",
+  operational_plan: "",
+  growth_projection: "",
+  strategic_warning: "",
+  next_steps: []
+});
 
   const handleAnalyze = async () => {
 
@@ -49,14 +67,30 @@ export default function AuraCommandCenter() {
   response.data
 );
 
+const cognition = {
+
+  ...response.data.chat_response,
+
+  ...response.data.executive_advisor,
+
+  ...response.data.conversational_response,
+
+  ...response.data.standardized_output,
+
+  ...response.data.executive_response,
+
+  ...response.data.executive_synthesis,
+
+  ...response.data.final_response
+
+};
+
 console.log(
-  "RESPONSE OBJECT:",
-  response.data.response
+  "COMBINED COGNITION:",
+  cognition
 );
 
-setCognition(
-  response.data.response
-);
+setCognition(cognition);
 
     } catch (error) {
 
