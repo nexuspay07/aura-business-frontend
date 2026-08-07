@@ -1,155 +1,206 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL;
+/*
+=========================================================
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+                AURA API CLIENT
+
+Central HTTP client used by the frontend.
+
+Responsibilities
+
+• Dashboard
+• Intelligence
+• Sessions
+• Authentication
+
+=========================================================
+*/
+
+const API = axios.create({
+
+    baseURL:
+        import.meta.env.VITE_API_URL ||
+        "http://127.0.0.1:8000"
+
 });
 
-console.log(
-  "API URL:",
-  import.meta.env.VITE_API_URL
+// =====================================================
+// REQUEST INTERCEPTOR
+// =====================================================
+
+API.interceptors.request.use(
+
+    (config) => {
+
+        const token = localStorage.getItem(
+            "aura_token"
+        );
+
+        if (token) {
+
+            config.headers.Authorization =
+                `Bearer ${token}`;
+
+        }
+
+        return config;
+
+    },
+
+    (error) => Promise.reject(error)
+
 );
 
+// =====================================================
+// DASHBOARD
+// =====================================================
 
+export async function getDashboard() {
 
-/*
-|--------------------------------------------------------------------------
-| TOKEN HELPERS
-|--------------------------------------------------------------------------
-*/
+    const response = await API.get(
+        "/dashboard"
+    );
 
-export const setToken = (token) => {
-  localStorage.setItem("aura_token", token);
-};
+    return response.data;
 
-export const getToken = () => {
-  return localStorage.getItem("aura_token");
-};
+}
 
-export const removeToken = () => {
-  localStorage.removeItem("aura_token");
-};
+export async function getWorkspaceSessions(workspaceId) {
 
+    const response = await API.get(
+        `/intelligence-sessions/workspace/${workspaceId}`
+    );
 
+    return response.data;
 
-/*
-|--------------------------------------------------------------------------
-| AXIOS INTERCEPTOR
-|--------------------------------------------------------------------------
-*/
+}
 
-api.interceptors.request.use(
-  (config) => {
-    const token = getToken();
+// =====================================================
+// EXECUTIVE INTELLIGENCE
+// =====================================================
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+export async function runIntelligence({
+
+    message,
+
+    sessionId = null,
+
+    organizationId = null,
+
+    workspaceId = null
+
+}) {
+
+    const response = await API.post(
+
+        "/chat",
+
+        {
+
+            message,
+
+            session_id: sessionId,
+
+            organization_id: organizationId,
+
+            workspace_id: workspaceId
+
+        }
+
+    );
+
+    return response.data;
+
+}
+
+// =====================================================
+// INTELLIGENCE SESSIONS
+// =====================================================
+
+export async function getSessions() {
+
+    const response = await API.get(
+        "/sessions"
+    );
+
+    return response.data;
+
+}
+
+export async function getSession(sessionId) {
+
+    const response = await API.get(
+        `/sessions/${sessionId}`
+    );
+
+    return response.data;
+
+}
+
+// =====================================================
+// AUTH
+// =====================================================
+
+export function getToken() {
+
+    return localStorage.getItem("aura_token");
+
+}
+
+// =====================================================
+// ORGANIZATIONS
+// =====================================================
+
+export async function getOrganizations() {
+
+    const response = await API.get(
+        "/organizations"
+    );
+
+    return response.data;
+
+}
+
+export async function getOrganization(organizationId) { return (await API.get(`/organizations/${organizationId}`)).data; }
+export async function getOrganizationWorkspaces(organizationId) { return (await API.get(`/organizations/${organizationId}/workspaces`)).data; }
+export async function selectActiveWorkspace(workspaceId) { return (await API.post("/auth/context/workspace", { workspace_id: workspaceId })).data; }
+
+// =====================================================
+// CURRENT USER / SESSION
+// =====================================================
+
+export async function getCurrentSession() {
+
+    const response = await API.get(
+        "/auth/me"
+    );
+
+    return response.data;
+
+}
+
+API.interceptors.response.use(
+
+    (response) => response,
+
+    (error) => {
+
+        if (
+            error.response?.status === 401 &&
+            localStorage.getItem("aura_token")
+        ) {
+
+            localStorage.removeItem("aura_token");
+
+            window.location.href = "/login";
+
+        }
+
+        return Promise.reject(error);
+
     }
 
-    return config;
-  },
-  (error) => Promise.reject(error)
 );
 
-
-
-/*
-|--------------------------------------------------------------------------
-| AUTH APIs
-|--------------------------------------------------------------------------
-*/
-
-export const loginUser = async (email, password) => {
-  const response = await api.post("/auth/login", {
-    email,
-    password,
-  });
-
-  return response.data;
-};
-
-export const registerUser = async (
-  name,
-  email,
-  password
-) => {
-  const response = await api.post("/auth/register", {
-    name,
-    email,
-    password,
-  });
-
-  return response.data;
-};
-
-export const getCurrentUser = async () => {
-  const response = await api.get("/auth/me");
-
-  return response.data;
-};
-
-
-
-/*
-|--------------------------------------------------------------------------
-| ORGANIZATION APIs
-|--------------------------------------------------------------------------
-*/
-
-export const getOrganizations = async () => {
-  const response = await api.get("/organizations");
-
-  return response.data;
-};
-
-export const createOrganization = async (data) => {
-  const response = await api.post("/organizations", data);
-
-  return response.data;
-};
-
-
-
-/*
-|--------------------------------------------------------------------------
-| INTELLIGENCE SESSION APIs
-|--------------------------------------------------------------------------
-*/
-
-export const getWorkspaceSessions = async (workspaceId) => {
-  const response = await api.get(
-    `/intelligence-sessions/workspace/${workspaceId}`
-  );
-
-  return response.data;
-};
-
-
-
-/*
-|--------------------------------------------------------------------------
-| EXPORT
-|--------------------------------------------------------------------------
-*/
-
-/*
-|--------------------------------------------------------------------------
-| CREATE INTELLIGENCE SESSION
-|--------------------------------------------------------------------------
-*/
-
-export const createIntelligenceSession = async (data) => {
-  const response = await api.post(
-    "/intelligence-sessions",
-    data
-  );
-
-  return response.data;
-};
-
-export default api;
+export default API;

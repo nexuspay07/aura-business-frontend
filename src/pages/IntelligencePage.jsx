@@ -11,8 +11,11 @@ import {
 } from "lucide-react";
 
 import api from "../services/api";
+import { useSession } from "../context/SessionContext";
 
 export default function IntelligencePage() {
+
+  const { organization, workspace } = useSession();
 
   const [prompt, setPrompt] = useState("");
 
@@ -53,8 +56,8 @@ export default function IntelligencePage() {
       const response = await api.post("/chat", {
         message: prompt,
         session_id: "workspace_session",
-        organization_id: 1,
-        workspace_id: 1,
+        organization_id: organization?.id,
+        workspace_id: workspace?.id,
       });
 
       console.log("AURA RESPONSE:", response.data);

@@ -1,216 +1,36 @@
-import {
-  LayoutDashboard,
-  BrainCircuit,
-  Store,
-  Building2,
-  FolderTree,
-  BarChart3,
-  BookOpen,
-  Database,
-  Settings,
-  Sparkles,
-  LogOut,
-} from "lucide-react";
-
-import {
-  NavLink,
-  useNavigate,
-} from "react-router-dom";
+import { BrainCircuit, Building2, LayoutDashboard, LogOut, PanelLeftClose, Sparkles, PanelsTopLeft } from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const menuItems = [
-
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    path: "/dashboard",
-  },
-
-  {
-    title: "Intelligence",
-    icon: BrainCircuit,
-    path: "/intelligence",
-  },
-
-  {
-    title: "Marketplace",
-    icon: Store,
-    path: "/marketplace",
-  },
-
-  {
-    title: "Organization",
-    icon: Building2,
-    path: "/organization",
-  },
-
-  {
-    title: "Workspaces",
-    icon: FolderTree,
-    path: "/workspaces",
-  },
-
-  {
-    title: "Analytics",
-    icon: BarChart3,
-    path: "/analytics",
-  },
-
-  {
-    title: "Knowledge",
-    icon: BookOpen,
-    path: "/knowledge",
-  },
-
-  {
-    title: "Memory",
-    icon: Database,
-    path: "/memory",
-  },
-
-  {
-    title: "Settings",
-    icon: Settings,
-    path: "/settings",
-  },
-
+  { title: "Home", icon: LayoutDashboard, path: "/dashboard" },
+  { title: "Decision Center", icon: BrainCircuit, path: "/intelligence" },
+  { title: "Saved Sessions", icon: Sparkles, path: "/sessions" },
+  { title: "Organizations", icon: Building2, path: "/organizations" },
+  { title: "Workspaces", icon: PanelsTopLeft, path: "/workspaces" },
 ];
 
-export default function Sidebar() {
-
+export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const closeButton = useRef(null);
+  const signOut = () => { logout(); onClose(); navigate("/login", { replace: true }); };
 
-  return (
+  useLayoutEffect(() => {
+    if (!mobileOpen) return undefined;
+    const focusFrame = requestAnimationFrame(() => closeButton.current?.focus());
+    const closeOnEscape = (event) => { if (event.key === "Escape") onClose(); };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => { cancelAnimationFrame(focusFrame); window.removeEventListener("keydown", closeOnEscape); };
+  }, [mobileOpen, onClose]);
 
-    <aside className="w-72 h-screen bg-white border-r border-slate-200 flex flex-col">
-
-      {/* Logo */}
-
-      <div className="px-8 py-8 border-b border-slate-100">
-
-        <h1 className="text-4xl font-black tracking-tight text-slate-900">
-          AURA
-        </h1>
-
-        <p className="text-blue-600 font-light text-xl">
-          Business
-        </p>
-
-        <p className="text-xs text-slate-500 mt-2">
-
-          Enterprise Intelligence Platform
-
-        </p>
-
-      </div>
-
-      {/* Navigation */}
-
-      <div className="flex-1 overflow-auto px-5 py-6">
-
-        <div className="space-y-2">
-
-          {menuItems.map((item) => {
-
-            const Icon = item.icon;
-
-            return (
-
-              <NavLink
-
-                key={item.path}
-
-                to={item.path}
-
-                className={({ isActive }) =>
-
-                  `flex items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-200 ${
-                    isActive
-                      ? "bg-gradient-to-r from-violet-600 to-blue-500 text-white shadow-lg"
-                      : "text-slate-700 hover:bg-slate-100"
-                  }`
-
-                }
-
-              >
-
-                <Icon size={20} />
-
-                <span className="font-medium">
-
-                  {item.title}
-
-                </span>
-
-              </NavLink>
-
-            );
-
-          })}
-
-        </div>
-
-      </div>
-
-      {/* Quick Action */}
-
-      <div className="px-5">
-
-        <button
-
-          onClick={() => navigate("/intelligence")}
-
-          className="w-full rounded-2xl bg-gradient-to-r from-violet-600 to-blue-500 text-white py-3 flex items-center justify-center gap-2 font-semibold hover:scale-[1.02] transition"
-
-        >
-
-          <Sparkles size={18} />
-
-          Ask Aura
-
-        </button>
-
-      </div>
-
-      {/* Workspace */}
-
-      <div className="mx-5 mt-6 rounded-2xl bg-slate-100 p-4">
-
-        <p className="text-xs uppercase text-slate-500">
-
-          Current Workspace
-
-        </p>
-
-        <p className="font-semibold mt-2">
-
-          Main Workspace
-
-        </p>
-
-      </div>
-
-      {/* Logout */}
-
-      <div className="p-5 border-t border-slate-100 mt-6">
-
-        <button
-
-          onClick={() => navigate("/")}
-
-          className="flex items-center gap-3 text-slate-600 hover:text-red-600 transition"
-
-        >
-
-          <LogOut size={18} />
-
-          Logout
-
-        </button>
-
-      </div>
-
+  return <>
+    {mobileOpen && <button aria-label="Close navigation overlay" onClick={onClose} className="fixed inset-0 z-30 bg-black/60 lg:hidden" />}
+    <aside aria-label="Primary navigation" className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-[#0b0e14] text-slate-200 shadow-2xl transition-transform duration-200 lg:static lg:translate-x-0 lg:shadow-none ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className="flex items-center justify-between border-b border-white/10 px-6 py-6"><div><h1 className="text-xl font-bold tracking-tight text-white">Aura <span className="text-slate-500">OS</span></h1><p className="mt-1 text-xs text-slate-500">Intelligence operating system</p></div>{mobileOpen && <button ref={closeButton} aria-label="Close navigation" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white lg:hidden"><PanelLeftClose size={18}/></button>}</div>
+      <nav className="flex-1 px-4 py-6"><p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-[.14em] text-slate-600">Operate</p><div className="space-y-1">{menuItems.map(({ title, icon: Icon, path }) => <NavLink key={path} to={path} onClick={onClose} className={({ isActive }) => `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${isActive ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}><Icon size={18}/>{title}</NavLink>)}</div></nav>
+      <div className="border-t border-white/10 p-4"><button onClick={signOut} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-400 transition hover:bg-white/5 hover:text-white"><LogOut size={17}/>Logout</button></div>
     </aside>
-
-  );
-
+  </>;
 }

@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+:root {
+  --aura-bg: #080a0f;
+  --aura-surface: #0d1119;
+  --aura-surface-raised: #141a24;
+  --aura-border: rgb(255 255 255 / 0.10);
+  --aura-text: #f8fafc;
+  --aura-muted: #94a3b8;
+  --aura-accent: #3b82f6;
+  --aura-radius-sm: .625rem;
+  --aura-radius-md: .875rem;
+  --aura-radius-lg: 1.25rem;
+  --aura-shadow: 0 20px 48px rgb(0 0 0 / .24);
+  --aura-transition: 160ms ease;
+}
+
 html,
 body,
 #root {
@@ -8,5 +23,17 @@ body,
   width: 100%;
   min-height: 100vh;
   font-family: Inter, sans-serif;
-  background: #f5f7fb;
+  background: #080a0f;
+  color: #f8fafc;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: dark; }
+body { overflow-x: hidden; }
+button, input, textarea { font: inherit; }
+:focus-visible { outline: 2px solid #60a5fa; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }

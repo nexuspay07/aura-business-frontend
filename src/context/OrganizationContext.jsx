@@ -3,12 +3,20 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 
 import {
-  getOrganizations,
-  getToken,
+
+    getOrganizations
+
 } from "../services/api";
+
+import {
+
+    useAuth
+
+} from "./AuthContext";
 
 const OrganizationContext =
   createContext();
@@ -16,6 +24,12 @@ const OrganizationContext =
 export function OrganizationProvider({
   children,
 }) {
+
+  const {
+
+    isAuthenticated
+
+} = useAuth();
   const [
     organizations,
     setOrganizations,
@@ -31,21 +45,7 @@ export function OrganizationProvider({
     setLoading,
   ] = useState(true);
 
-  useEffect(() => {
-
-  const token =
-    getToken();
-
-  if (token) {
-    loadOrganizations();
-  } else {
-    setLoading(false);
-  }
-
-}, []);
-
-  const loadOrganizations =
-    async () => {
+  const loadOrganizations = useCallback(async () => {
       try {
         const data =
           await getOrganizations();
@@ -70,7 +70,15 @@ export function OrganizationProvider({
       } finally {
         setLoading(false);
       }
-    };
+    }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void Promise.resolve().then(loadOrganizations);
+    } else {
+      queueMicrotask(() => setLoading(false));
+    }
+  }, [isAuthenticated, loadOrganizations]);
 
   return (
     <OrganizationContext.Provider
@@ -87,6 +95,7 @@ export function OrganizationProvider({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useOrganization() {
   return useContext(
     OrganizationContext

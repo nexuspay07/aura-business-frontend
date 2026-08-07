@@ -1,224 +1,110 @@
+// Production Login.jsx template
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+
+import AuthLayout from "../components/auth/AuthLayout";
+import AuthInput from "../components/auth/AuthInput";
+import PasswordInput from "../components/auth/PasswordInput";
+import SocialLogin from "../components/auth/SocialLogin";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
+  const [rememberMe,setRememberMe]=useState(false);
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState("");
 
-  const handleLogin = async (e) => {
+  async function handleLogin(e){
     e.preventDefault();
-
     setLoading(true);
     setError("");
 
-    try {
-      const response = await api.post("/auth/login", {
-        email,
-        password,
-      });
-
+    try{
+      const response=await api.post("/auth/login",{email,password});
       login(response.data.access_token);
 
-      navigate("/dashboard");
-    } catch (err) {
-      setError("Invalid login credentials");
-    }
+      if(rememberMe){
+        localStorage.setItem("remember_email",email);
+      }else{
+        localStorage.removeItem("remember_email");
+      }
 
-    setLoading(false);
-  };
+      // SessionProvider refreshes from /auth/me after AuthContext receives the
+      // verified token.  Calling its pre-render callback here would still see
+      // the old anonymous state and could incorrectly send a member to setup.
+      navigate("/dashboard", { replace: true });
+
+    }catch(err){
+      setError(err?.response?.data?.detail || "Invalid login credentials.");
+      setLoading(false);
+    }
+  }
 
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background:
-          "radial-gradient(circle at top, #0f172a 0%, #020617 70%)",
-        overflow: "hidden",
-        position: "relative",
-        padding: "20px",
-        boxSizing: "border-box",
-      }}
+    <AuthLayout
+      title="Welcome back."
+      subtitle="Sign in to continue using Aura OS."
     >
-      {/* Background Glow */}
-      <div
-        style={{
-          position: "absolute",
-          width: "700px",
-          height: "700px",
-          borderRadius: "50%",
-          background: "rgba(59,130,246,0.12)",
-          filter: "blur(120px)",
-          top: "-200px",
-          left: "-150px",
-        }}
-      />
+      <form onSubmit={handleLogin}>
 
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "480px",
-          background: "rgba(15, 23, 42, 0.85)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "28px",
-          padding: "50px 40px",
-          backdropFilter: "blur(25px)",
-          boxShadow: "0 0 50px rgba(37,99,235,0.18)",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        {/* Logo */}
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: "45px",
-          }}
-        >
-          <h1
-            style={{
-              color: "white",
-              fontSize: "72px",
-              lineHeight: "72px",
-              margin: 0,
-              fontWeight: "800",
-              letterSpacing: "-4px",
-            }}
-          >
-            AURA
-          </h1>
+        <AuthInput
+          label="Email Address"
+          type="email"
+          value={email}
+          onChange={(e)=>setEmail(e.target.value)}
+          required
+        />
 
-          <div
-            style={{
-              color: "#60a5fa",
-              fontSize: "34px",
-              fontWeight: "300",
-              marginTop: "8px",
-              letterSpacing: "1px",
-            }}
-          >
-            Business
-          </div>
+        <PasswordInput
+          label="Password"
+          value={password}
+          onChange={(e)=>setPassword(e.target.value)}
+          required
+        />
 
-          <p
-            style={{
-              color: "#94a3b8",
-              fontSize: "15px",
-              marginTop: "16px",
-            }}
-          >
-            AI-Powered Business Intelligence
-          </p>
+        {error && <p role="alert" className="mt-3 rounded-lg border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
+
+        <div className="my-5 flex items-center justify-between text-sm text-slate-400">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e)=>setRememberMe(e.target.checked)}
+            />
+            {" "}Remember me
+          </label>
+
+          <Link className="text-blue-300 hover:text-blue-200" to="/forgot-password">
+            Forgot Password?
+          </Link>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: "22px" }}>
-            <label
-              style={{
-                color: "#cbd5e1",
-                display: "block",
-                marginBottom: "10px",
-                fontSize: "14px",
-              }}
-            >
-              Email
-            </label>
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-2 flex h-12 w-full items-center justify-center rounded-xl bg-blue-500 font-semibold text-white transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? "Signing In..." : "Sign In"}
+        </button>
 
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "16px",
-                borderRadius: "14px",
-                border: "1px solid #334155",
-                background: "#0f172a",
-                color: "white",
-                outline: "none",
-                fontSize: "15px",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
+        <SocialLogin
+          loading={loading}
+          onGoogle={()=>console.log("Google")}
+          onMicrosoft={()=>console.log("Microsoft")}
+        />
 
-          <div style={{ marginBottom: "14px" }}>
-            <label
-              style={{
-                color: "#cbd5e1",
-                display: "block",
-                marginBottom: "10px",
-                fontSize: "14px",
-              }}
-            >
-              Password
-            </label>
+        <div className="mt-6 text-center text-sm text-slate-400">
+          Don't have an account? <Link className="font-medium text-blue-300 hover:text-blue-200" to="/register">Create Account</Link>
+        </div>
 
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "16px",
-                borderRadius: "14px",
-                border: "1px solid #334155",
-                background: "#0f172a",
-                color: "white",
-                outline: "none",
-                fontSize: "15px",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-
-          {error && (
-            <p
-              style={{
-                color: "#ef4444",
-                marginBottom: "10px",
-                fontSize: "14px",
-              }}
-            >
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "16px",
-              borderRadius: "14px",
-              border: "none",
-              marginTop: "20px",
-              background:
-                "linear-gradient(to right, #7c3aed, #2563eb)",
-              color: "white",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "0.3s",
-            }}
-          >
-            {loading ? "Signing In..." : "Login"}
-          </button>
-        </form>
-      </div>
-    </div>
+      </form>
+    </AuthLayout>
   );
 }

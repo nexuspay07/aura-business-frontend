@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import api, {
   getWorkspaceSessions
@@ -9,11 +9,12 @@ import {
   Brain
 } from "lucide-react";
 
-import SessionsWorkspace
-from "./SessionsWorkspace";
+import { useSession } from "../context/SessionContext";
 
 
 export default function SessionsPage() {
+
+  const { workspace } = useSession();
 
   const [sessions, setSessions] =
     useState([]);
@@ -23,18 +24,14 @@ export default function SessionsPage() {
     setSelectedSession
   ] = useState(null);
 
-  useEffect(() => {
+  const loadSessions = useCallback(async (workspaceId) => {
 
-    loadSessions();
-
-  }, []);
-
-  const loadSessions = async () => {
+    if (!workspaceId) return;
 
     try {
 
       const response =
-        await getWorkspaceSessions(1);
+        await getWorkspaceSessions(workspaceId);
 
       const loadedSessions =
         response.sessions || [];
@@ -43,23 +40,20 @@ export default function SessionsPage() {
         loadedSessions
       );
 
-      if (
-        loadedSessions.length > 0 &&
-        !selectedSession
-      ) {
-
-        setSelectedSession(
-          loadedSessions[0]
-        );
-
-      }
+      setSelectedSession((current) => current || loadedSessions[0] || null);
 
     } catch (error) {
 
       console.error(error);
 
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (workspace?.id) {
+      void Promise.resolve().then(() => loadSessions(workspace.id));
+    }
+  }, [workspace?.id, loadSessions]);
 
   const deleteSession =
     async (
@@ -86,7 +80,7 @@ export default function SessionsPage() {
 
         }
 
-        await loadSessions();
+        await loadSessions(workspace?.id);
 
       } catch (error) {
 

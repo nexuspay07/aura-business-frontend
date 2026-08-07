@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import api from "../services/api";
 
 const AuthContext = createContext();
 
@@ -17,11 +18,17 @@ export function AuthProvider({ children }) {
     const storedToken =
       localStorage.getItem("aura_token");
 
-    if (storedToken) {
-      setToken(storedToken);
+    async function restore() {
+      if (!storedToken) { setLoading(false); return; }
+      try {
+        await api.get("/auth/me");
+        setToken(storedToken);
+      } catch {
+        localStorage.removeItem("aura_token");
+      } finally { setLoading(false); }
     }
 
-    setLoading(false);
+    restore();
   }, []);
 
   const login = (jwtToken) => {
@@ -35,6 +42,9 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem("aura_token");
+    sessionStorage.removeItem("aura_session");
+    sessionStorage.removeItem("aura_organization");
+    sessionStorage.removeItem("aura_workspace");
 
     setToken(null);
   };
@@ -54,6 +64,8 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Context hooks intentionally share this module with their provider.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }
