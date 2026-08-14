@@ -1,5 +1,6 @@
 import { ArrowRight, BrainCircuit, Building2, CircleGauge, Database, Layers3, Play, Sparkles, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
+import LandingVision from "./LandingVision";
 
 const features = [
   [Building2, "Organizations", "Keep company identity, members, and ownership in one secure boundary."],
@@ -27,7 +28,7 @@ function LandingNav() {
   </div>;
 }
 
-export default function Landing() {
+export function LegacyLanding() {
   return <main className="landing min-h-screen overflow-hidden bg-[#07090d] text-white">
     <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-6 lg:px-8">
       <Link to="/" className="flex items-center gap-3 font-semibold tracking-tight"><span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500 text-lg shadow-[0_0_32px_rgba(59,130,246,.45)]">A</span><span>Aura <span className="text-slate-400">OS</span></span></Link>
@@ -46,3 +47,6 @@ export default function Landing() {
     <footer className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-10 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-8"><span>© 2026 Aura OS</span><span>Built for deliberate organizations.</span></footer>
   </main>;
 }
+
+void LegacyLanding;
+export default LandingVision;
