@@ -40,8 +40,8 @@ export function SessionProvider({
 
     } = useAuth();
 
-    const [session, setSession] = useState({ user: null, organization: null, workspace: null });
-    const { user, organization, workspace } = session;
+    const [session, setSession] = useState({ user: null, organization: null, workspace: null, productMode: null, capabilities: [] });
+    const { user, organization, workspace, productMode, capabilities } = session;
 
     const [
 
@@ -65,7 +65,7 @@ export function SessionProvider({
 
         if (!isAuthenticated) {
 
-            setSession({ user: null, organization: null, workspace: null });
+            setSession({ user: null, organization: null, workspace: null, productMode: null, capabilities: [] });
 
             setLoading(false);
 
@@ -79,7 +79,13 @@ export function SessionProvider({
 
             const data = await getCurrentSession();
 
-            setSession({ user: data.user || null, organization: data.organization || null, workspace: data.workspace || null });
+            setSession({
+                user: data.user || null,
+                organization: data.organization || null,
+                workspace: data.workspace || null,
+                productMode: data.product_mode || null,
+                capabilities: Array.isArray(data.capabilities) ? data.capabilities : [],
+            });
 
             return data;
 
@@ -95,7 +101,7 @@ export function SessionProvider({
 
             );
 
-            setSession({ user: null, organization: null, workspace: null });
+            setSession({ user: null, organization: null, workspace: null, productMode: null, capabilities: [] });
 
             return null;
 
@@ -126,6 +132,10 @@ export function SessionProvider({
                 organization,
 
                 workspace,
+
+                productMode,
+
+                capabilities,
 
                 loading,
 

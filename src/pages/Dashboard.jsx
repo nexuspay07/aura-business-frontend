@@ -2,8 +2,19 @@ import DashboardLayout from "../layouts/DashboardLayout";
 
 import useDashboard from "../components/dashboard/hooks/useDashboard";
 import ExecutiveReport from "../components/intelligence/ExecutiveReport";
+import PersonalHome from "./PersonalHome";
+import { useSession } from "../context/SessionContext";
 
 export default function Dashboard() {
+
+    const { productMode } = useSession();
+
+    if (productMode === "personal") return <DashboardLayout><PersonalHome /></DashboardLayout>;
+
+    return <BusinessDashboard />;
+}
+
+function BusinessDashboard() {
 
     const {
 

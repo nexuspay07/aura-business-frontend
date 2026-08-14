@@ -9,7 +9,6 @@ import { useAuth } from "../context/AuthContext";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthInput from "../components/auth/AuthInput";
 import PasswordInput from "../components/auth/PasswordInput";
-import SocialLogin from "../components/auth/SocialLogin";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,7 +16,6 @@ export default function Login() {
 
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
-  const [rememberMe,setRememberMe]=useState(false);
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState("");
 
@@ -29,12 +27,6 @@ export default function Login() {
     try{
       const response=await api.post("/auth/login",{email,password});
       login(response.data.access_token);
-
-      if(rememberMe){
-        localStorage.setItem("remember_email",email);
-      }else{
-        localStorage.removeItem("remember_email");
-      }
 
       // SessionProvider refreshes from /auth/me after AuthContext receives the
       // verified token.  Calling its pre-render callback here would still see
@@ -49,8 +41,8 @@ export default function Login() {
 
   return (
     <AuthLayout
-      title="Welcome back."
-      subtitle="Sign in to continue using Aura OS."
+      title="Enter the operating environment."
+      subtitle="Sign in to continue with your organization’s intelligence context."
     >
       <form onSubmit={handleLogin}>
 
@@ -71,21 +63,6 @@ export default function Login() {
 
         {error && <p role="alert" className="mt-3 rounded-lg border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
 
-        <div className="my-5 flex items-center justify-between text-sm text-slate-400">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e)=>setRememberMe(e.target.checked)}
-            />
-            {" "}Remember me
-          </label>
-
-          <Link className="text-blue-300 hover:text-blue-200" to="/forgot-password">
-            Forgot Password?
-          </Link>
-        </div>
-
         <button
           type="submit"
           disabled={loading}
@@ -93,12 +70,6 @@ export default function Login() {
         >
           {loading ? "Signing In..." : "Sign In"}
         </button>
-
-        <SocialLogin
-          loading={loading}
-          onGoogle={()=>console.log("Google")}
-          onMicrosoft={()=>console.log("Microsoft")}
-        />
 
         <div className="mt-6 text-center text-sm text-slate-400">
           Don't have an account? <Link className="font-medium text-blue-300 hover:text-blue-200" to="/register">Create Account</Link>

@@ -16,6 +16,14 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import OrganizationsPage from "./pages/OrganizationsPage";
 import OrganizationDetailPage from "./pages/OrganizationDetailPage";
 import WorkspacesPage from "./pages/WorkspacesPage";
+import MarketplacePage from "./pages/MarketplacePage";
+import MarketplaceDetailPage from "./pages/MarketplaceDetailPage";
+import SimulationsPage from "./pages/SimulationsPage";
+import SimulationHistoryPage from "./pages/SimulationHistoryPage";
+import BillingPage from "./pages/BillingPage";
+import SettingsPage from "./pages/SettingsPage";
+import PersonalDecisionsPage from "./pages/PersonalDecisionsExperience";
+import PersonalDecisionDetailPage from "./pages/PersonalDecisionDetailExperience";
 
 import {
     AuthProvider,
@@ -30,6 +38,7 @@ import {
 import {
     OrganizationProvider
 } from "./context/OrganizationContext";
+import { canAccessRoute } from "./product/capabilities";
 
 function ProtectedRoute({
     children,
@@ -139,6 +148,22 @@ function PublicRoute({ children }) {
 
 }
 
+function CapabilityRoute({ capability, children }) {
+
+    const { capabilities, loading } = useSession();
+
+    if (loading) {
+        return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+    }
+
+    if (!canAccessRoute(capabilities, capability)) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    return children;
+
+}
+
 function UnknownRoute() {
 
     const { isAuthenticated, loading: authLoading } = useAuth();
@@ -179,10 +204,18 @@ function AppRoutes() {
 
             />
 
-            <Route path="/organizations" element={<ProtectedRoute><DashboardLayout><OrganizationsPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/organizations/:organizationId" element={<ProtectedRoute><DashboardLayout><OrganizationDetailPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/workspaces" element={<ProtectedRoute><DashboardLayout><WorkspacesPage /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/workspaces/:workspaceId" element={<ProtectedRoute><DashboardLayout><WorkspacesPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/organizations" element={<ProtectedRoute><CapabilityRoute capability="organizations"><DashboardLayout><OrganizationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/organizations/:organizationId" element={<ProtectedRoute><CapabilityRoute capability="organizations"><DashboardLayout><OrganizationDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/workspaces" element={<ProtectedRoute><CapabilityRoute capability="workspaces"><DashboardLayout><WorkspacesPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/workspaces/:workspaceId" element={<ProtectedRoute><CapabilityRoute capability="workspaces"><DashboardLayout><WorkspacesPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/marketplace" element={<ProtectedRoute><CapabilityRoute capability="marketplace"><DashboardLayout><MarketplacePage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/marketplace/:itemId" element={<ProtectedRoute><CapabilityRoute capability="marketplace"><DashboardLayout><MarketplaceDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/simulations" element={<ProtectedRoute><CapabilityRoute capability="simulations"><DashboardLayout><SimulationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/simulations/history" element={<ProtectedRoute><CapabilityRoute capability="simulations"><DashboardLayout><SimulationHistoryPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/billing" element={<ProtectedRoute><CapabilityRoute capability="billing"><DashboardLayout><BillingPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/settings/*" element={<ProtectedRoute><CapabilityRoute capability="business_settings"><DashboardLayout><SettingsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/decisions" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><PersonalDecisionsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/decisions/:decisionId" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><h2 className="sr-only">What I chose</h2><span className="sr-only">Aura recommends</span><PersonalDecisionDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/" element={<Landing />} />
 
@@ -232,7 +265,7 @@ function AppRoutes() {
 
                     <ProtectedRoute>
 
-                        <DashboardLayout><AuraCommandCenter /></DashboardLayout>
+                        <CapabilityRoute capability="ask_aura"><DashboardLayout><AuraCommandCenter /></DashboardLayout></CapabilityRoute>
 
                     </ProtectedRoute>
 
@@ -250,7 +283,7 @@ function AppRoutes() {
 
                     <ProtectedRoute>
 
-                        <DashboardLayout><SessionsPage /></DashboardLayout>
+                        <CapabilityRoute capability="session_history"><DashboardLayout><SessionsPage /></DashboardLayout></CapabilityRoute>
 
                     </ProtectedRoute>
 

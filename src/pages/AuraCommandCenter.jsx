@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { Send, Sparkles } from "lucide-react";
 import api from "../services/api";
-import { useSession } from "../context/SessionContext";
 import ExecutiveReport from "../components/intelligence/ExecutiveReport";
+import PersonalAsk from "../components/personal/PersonalAskExperience";
+import { useSession } from "../context/SessionContext";
 
 export default function AuraCommandCenter() {
-  const { organization, workspace } = useSession();
+  const { productMode } = useSession();
+  if (productMode === "personal") return <PersonalAsk />;
+  return <ExecutiveCommandCenter />;
+}
+
+function ExecutiveCommandCenter() {
   const [prompt, setPrompt] = useState("");
   const [report, setReport] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +22,11 @@ export default function AuraCommandCenter() {
     if (!prompt.trim() || loading) return;
     setLoading(true); setError("");
     try {
-      const { data } = await api.post("/chat", { message: prompt.trim(), session_id: "workspace_session", organization_id: organization?.id, workspace_id: workspace?.id });
+      const { data } = await api.post("/chat", {
+        message: prompt.trim(),
+        session_id: sessionId,
+      });
+      setSessionId(data.session_id ?? null);
       setReport(data.executive_report || null);
     } catch (requestError) {
       setError(requestError.response?.data?.detail || "Aura could not complete this intelligence request.");

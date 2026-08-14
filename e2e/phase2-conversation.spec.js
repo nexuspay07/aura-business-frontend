@@ -1,0 +1,38 @@
+import { expect, test } from "@playwright/test";
+
+const personal = {user:{id:2,email:"person@aura.local",full_name:"Personal User"},organization:{id:2,name:"Personal Space",account_type:"personal"},workspace:{id:2,name:"My Workspace"},product_mode:"personal",capabilities:["home","personal_home","ask_aura","decisions","documents"]};
+async function auth(page){await page.addInitScript(()=>localStorage.setItem("aura_token","test"));await page.route("**/auth/me",r=>r.fulfill({contentType:"application/json",body:JSON.stringify(personal)}));await page.route("**/organizations",r=>r.fulfill({contentType:"application/json",body:JSON.stringify({organizations:[personal.organization]})}));}
+const turn=(role,content,mode=role==="user"?"USER":"GENERAL",payload)=>({role,content,mode,created_at:new Date().toISOString(),...(payload?{payload}:{})});
+
+test("Phase 2 restores a general thread and sends bounded follow-up through the same session",async({page})=>{
+  await auth(page);let turns=[];let secondBody;
+  await page.route("**/personal/ask/77",r=>r.fulfill({contentType:"application/json",body:JSON.stringify({session_id:77,mode:"CONVERSATION",turns})}));
+  await page.route("**/personal/ask",async r=>{const body=r.request().postDataJSON();if(turns.length)secondBody=body;turns=[...turns,turn("user",body.message),turn("assistant",turns.length?"On $5,000, compounding earns interest on prior interest.":"Compound interest earns interest on both principal and prior interest.")];await r.fulfill({contentType:"application/json",body:JSON.stringify({mode:"GENERAL",session_id:77,message:turns.at(-1).content,turns})});});
+  await page.goto("/intelligence");await page.getByLabel("Message Aura").fill("Explain compound interest simply.");await page.keyboard.press("Enter");await expect(page.getByText("Compound interest earns interest on both principal and prior interest.")).toBeVisible();
+  await page.getByLabel("Message Aura").fill("Give me an example with $5,000.");await page.keyboard.press("Enter");await expect.poll(()=>secondBody).toEqual({session_id:77,message:"Give me an example with $5,000."});
+  await page.reload();await expect(page.getByText("On $5,000, compounding earns interest on prior interest.")).toBeVisible();await expect(page.getByRole("button",{name:"Save Decision"})).toHaveCount(0);
+});
+
+test("Phase 2 keeps clarification, decision, current boundary, composer, and layouts in one thread",async({page})=>{
+  await auth(page);let calls=0;let turns=[];
+  const decision={mode:"ANALYSIS_COMPLETE",classification:"education_decision",problem_understanding:"Choose whether to enroll.",analysis:"The cost [derived:total_stated_tuition] and career benefit are the main trade-off.",alternatives:[{option:"Enroll",benefits:["Build IT skills"],downsides:["Tuition cost"]}],recommendation:{recommended_option:"Enroll if the cost fits your budget",rationale:"The program aligns with the stated career goal [user-query].",what_would_change_the_recommendation:["A materially higher total cost"]},unresolved_questions:["Available financial aid"],prioritized_actions:["Confirm the full program cost"]};
+  await page.route("**/personal/ask",async r=>{calls+=1;const body=r.request().postDataJSON();if(calls===1){turns=[turn("user",body.message),turn("assistant","What program are you considering, and roughly how much would it cost?","CLARIFICATION_REQUIRED",{questions:["What program are you considering, and roughly how much would it cost?"]})];await r.fulfill({contentType:"application/json",body:JSON.stringify({mode:"CLARIFICATION_REQUIRED",session_id:88,classification:"education_decision",questions:turns[1].payload.questions,turns})});return;}turns=[...turns,turn("user",body.clarification_response),turn("assistant",decision.recommendation.recommended_option,"ANALYSIS_COMPLETE",decision)];await r.fulfill({contentType:"application/json",body:JSON.stringify({...decision,session_id:88,turns})});});
+  await page.route("**/personal/decisions",r=>r.fulfill({status:201,contentType:"application/json",body:JSON.stringify({id:9})}));
+  await page.goto("/intelligence");await page.getByLabel("Message Aura").fill("I'm thinking about going back to school.");await page.getByRole("button",{name:"Send"}).click();await expect(page.getByText("What program are you considering, and roughly how much would it cost?")).toBeVisible();
+  await page.getByLabel("Message Aura").fill("A two-year IT program at $8,000 per year.");await page.getByRole("button",{name:"Continue"}).click();await expect(page.getByText("Recommendation",{exact:true})).toBeVisible();await expect(page.getByText("Enroll if the cost fits your budget",{exact:true})).toHaveCount(1);await expect(page.getByText(/\[(?:user-query|derived:)/)).toHaveCount(0);await expect(page.getByText("Options and trade-offs")).toBeVisible();await page.getByRole("button",{name:"Save Decision"}).click();await expect(page.getByRole("status")).toContainText("Saved to Decisions");
+  for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1366,height:768},{width:1920,height:1080}]){await page.setViewportSize(viewport);expect(await page.locator("body").evaluate(body=>body.scrollWidth<=window.innerWidth)).toBeTruthy();await expect(page.getByPlaceholder("Talk to Aura...")).toBeVisible();}
+});
+
+test("Personal decision presentation removes live provenance, duplicate reasoning, and passive next steps",async({page})=>{
+  await auth(page);
+  const repeated="A cash purchase leaves $14,000, which is $6,000 below the stated reserve target; current monthly surplus is $1,600.";
+  const decision={mode:"ANALYSIS_COMPLETE",classification:"major_purchase",problem_understanding:"Decide whether to buy the car.",analysis:repeated+" [derived:savings_after_purchase, derived:emergency_savings_gap]",alternatives:[{option:"Wait or choose a cheaper car",benefits:["Preserves the reserve [user-query]","Monthly budget appears able to absorb ownership costs better given a $1,600 surplus"],downsides:["Delays the purchase [document:car-note]"]}],recommendation:{recommended_option:"Wait or choose a cheaper car",rationale:repeated,what_would_change_the_recommendation:["A lower verified purchase price preserves the stated reserve [derived:savings_after_purchase]"]},unresolved_questions:["Actual insurance, fuel, maintenance, parking, registration, and financing costs [user-query]"],prioritized_actions:["A suitable car is available below a price that leaves at least $20,000 remaining."]};
+  await page.route("**/personal/ask",async route=>route.fulfill({contentType:"application/json",body:JSON.stringify({...decision,session_id:99,turns:[turn("user","Should I buy a $30,000 car?"),turn("assistant",decision.recommendation.recommended_option,"ANALYSIS_COMPLETE",decision)]})}));
+  await page.goto("/intelligence");await page.getByLabel("Message Aura").fill("Should I buy a $30,000 car?");await page.getByRole("button",{name:"Send"}).click();
+  await expect(page.getByText(repeated,{exact:true})).toHaveCount(1);
+  await expect(page.getByText(/\[(?:user-query|derived:|document:)/)).toHaveCount(0);
+  await expect(page.getByText("Monthly budget appears able to absorb ownership costs better given a $1,600 surplus",{exact:true})).toHaveCount(0);
+  await expect(page.locator("li").filter({hasText:"You currently have a $1,600 monthly surplus before any additional car-related costs."})).toBeVisible();
+  await expect(page.locator("li").filter({hasText:"Check whether a suitable car is available below a price that leaves at least $20,000 remaining."})).toBeVisible();
+  await expect(page.getByRole("button",{name:"Save Decision"})).toBeVisible();
+});
