@@ -2,7 +2,7 @@ import { ArrowRight, CalendarDays } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
-import { formatDate, personal, SectionHeading, StatusPill, truncateTitle } from "../components/personal/PersonalUI";
+import { consumerText, formatDate, personal, SectionHeading, StatusPill, summaryText, truncateTitle } from "../components/personal/PersonalUI";
 import { listPersonalDecisions } from "../services/api";
 
 const examples = ["Should I take this job offer?", "Can I afford this purchase?", "Should I go back to school?", "Which option fits my priorities better?"];
@@ -12,13 +12,13 @@ const focusClass = personal.focus;
 function PrimaryDecision({ decision }) {
   return <Link to={`/decisions/${decision.id}`} className={`group block overflow-hidden rounded-[32px] border border-blue-300/20 bg-[#101722] p-7 transition hover:border-blue-300/40 sm:p-10 ${focusClass}`}>
     <div className="flex flex-wrap items-center gap-3"><StatusPill>{decision.status || "Open"}</StatusPill>{(decision.updated_at || decision.created_at) && <span className="text-sm text-slate-500">Saved {formatDate(decision.updated_at || decision.created_at)}</span>}{decision.review_date && <span className="inline-flex items-center gap-1.5 text-sm text-blue-200"><CalendarDays size={15}/>Review {formatDate(decision.review_date)}</span>}</div>
-    <h3 className="mt-7 max-w-4xl text-2xl font-semibold leading-tight tracking-[-.02em] text-white sm:text-3xl">{truncateTitle(decision.title)}</h3>
-    <div className="mt-8 grid gap-7 border-t border-white/[.08] pt-7 sm:grid-cols-[1fr_auto] sm:items-end"><div><p className="text-sm font-medium text-slate-500">{decision.user_choice ? "You chose" : "Aura currently recommends"}</p><p className="mt-2 max-w-3xl text-xl font-medium leading-8 text-slate-100">{decision.user_choice || decision.recommendation || "Open this decision to continue."}</p></div><span className="inline-flex items-center gap-2 font-semibold text-blue-300 transition group-hover:translate-x-1">Review decision <ArrowRight size={18}/></span></div>
+    <h3 className="mt-7 max-w-4xl text-2xl font-semibold leading-tight tracking-[-.02em] text-white sm:text-3xl">{truncateTitle(consumerText(decision.title))}</h3>
+    <div className="mt-8 grid gap-7 border-t border-white/[.08] pt-7 sm:grid-cols-[1fr_auto] sm:items-end"><div><p className="text-sm font-medium text-slate-500">{decision.user_choice ? "You chose" : "Aura recommends"}</p><p className="mt-2 max-w-3xl text-xl font-medium leading-8 text-slate-100">{summaryText(decision.user_choice || decision.recommendation) || "Open this decision to continue."}</p></div><span className="inline-flex items-center gap-2 font-semibold text-blue-300 transition group-hover:translate-x-1">View decision <ArrowRight size={18}/></span></div>
   </Link>;
 }
 
 function RecentDecision({ decision }) {
-  return <Link to={`/decisions/${decision.id}`} className={`group flex min-h-64 flex-col justify-between rounded-[26px] border border-white/[.09] bg-[#0d1119] p-6 transition hover:-translate-y-0.5 hover:border-white/20 ${focusClass}`}><div><StatusPill>{decision.status || "Open"}</StatusPill><h3 className="mt-5 text-xl font-semibold leading-7 text-white">{truncateTitle(decision.title, 72)}</h3><p className="mt-4 line-clamp-2 leading-7 text-slate-400"><span className="text-slate-300">{decision.user_choice ? "You chose:" : "Aura recommends:"}</span> {decision.user_choice || decision.recommendation || "Not decided yet"}</p></div><span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-blue-300">Open decision <ArrowRight className="transition group-hover:translate-x-1" size={16}/></span></Link>;
+  return <Link to={`/decisions/${decision.id}`} className={`group flex min-h-64 flex-col justify-between rounded-[26px] border border-white/[.09] bg-[#0d1119] p-6 transition hover:-translate-y-0.5 hover:border-white/20 ${focusClass}`}><div><StatusPill>{decision.status || "Open"}</StatusPill><h3 className="mt-5 text-xl font-semibold leading-7 text-white">{truncateTitle(consumerText(decision.title), 72)}</h3><p className="mt-4 line-clamp-2 leading-7 text-slate-400"><span className="text-slate-300">{decision.user_choice ? "You chose:" : "Aura recommends:"}</span> {consumerText(decision.user_choice || decision.recommendation) || "Not decided yet"}</p></div><span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-blue-300">Open decision <ArrowRight className="transition group-hover:translate-x-1" size={16}/></span></Link>;
 }
 
 export default function PersonalHome() {

@@ -1,0 +1,7 @@
+import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import AuthLayout from "../components/auth/AuthLayout";
+import PasswordInput from "../components/auth/PasswordInput";
+import { confirmPasswordReset } from "../services/api";
+
+export default function ResetPassword(){const [params]=useSearchParams();const [password,setPassword]=useState("");const [confirm,setConfirm]=useState("");const [message,setMessage]=useState("");async function submit(event){event.preventDefault();if(password!==confirm){setMessage("Passwords do not match.");return;}try{const result=await confirmPasswordReset(params.get("token")||"",password);setMessage(result.message);}catch(error){setMessage(error?.response?.data?.detail||"Reset link is invalid or expired");}}return <AuthLayout title="Choose a new password." subtitle="Your reset link is single-use and expires for your protection."><form onSubmit={submit}><PasswordInput label="New password" value={password} onChange={event=>setPassword(event.target.value)} required/><PasswordInput label="Confirm password" value={confirm} onChange={event=>setConfirm(event.target.value)} required/>{message&&<p role="status" className="mt-4 text-sm text-slate-300">{message}</p>}<button className="mt-5 h-12 w-full rounded-xl bg-blue-500 font-semibold text-white">Reset password</button><Link className="mt-5 block text-center text-sm text-blue-300" to="/login">Back to login</Link></form></AuthLayout>}

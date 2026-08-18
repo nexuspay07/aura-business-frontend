@@ -61,6 +61,8 @@ export default function Login() {
           required
         />
 
+        <div className="mb-4 -mt-1 text-right"><Link className="text-sm font-medium text-blue-300 hover:text-blue-200" to="/forgot-password">Forgot password?</Link></div>
+
         {error && <p role="alert" className="mt-3 rounded-lg border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
 
         <button

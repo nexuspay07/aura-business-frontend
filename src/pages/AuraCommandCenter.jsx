@@ -4,10 +4,12 @@ import api from "../services/api";
 import ExecutiveReport from "../components/intelligence/ExecutiveReport";
 import PersonalAsk from "../components/personal/PersonalAskExperience";
 import { useSession } from "../context/SessionContext";
+import { useLocation } from "react-router-dom";
 
 export default function AuraCommandCenter() {
   const { productMode } = useSession();
-  if (productMode === "personal") return <PersonalAsk />;
+  const location = useLocation();
+  if (productMode === "personal") return <PersonalAsk key={location.state?.newConversation || location.state?.conversationId || "active"} />;
   return <ExecutiveCommandCenter />;
 }
 

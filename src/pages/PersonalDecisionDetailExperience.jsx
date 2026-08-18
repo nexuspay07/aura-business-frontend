@@ -1,7 +1,7 @@
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { formatDate, personal, SectionHeading, StatusPill, truncateTitle } from "../components/personal/PersonalUI";
+import { consumerValue, formatDate, personal, SectionHeading, StatusPill, truncateTitle } from "../components/personal/PersonalUI";
 import { deletePersonalDecision, getPersonalDecision, updatePersonalDecision } from "../services/api";
 
 function FactSection({ title, items }) { const clean = items?.flat().filter(Boolean); if (!clean?.length) return null; return <section className={`${personal.surface} p-6 sm:p-8`}><h2 className={personal.section}>{title}</h2><ul className="mt-5 space-y-3 text-base leading-7 text-slate-300">{clean.map((item) => <li className="flex gap-3" key={typeof item === "string" ? item : JSON.stringify(item)}><span aria-hidden="true" className="mt-3 h-1 w-1 shrink-0 rounded-full bg-blue-300"/>{item}</li>)}</ul></section>; }
@@ -9,7 +9,7 @@ function Option({ item }) { return <section className={`${personal.surface} p-6 
 
 export default function PersonalDecisionDetailExperience() {
   const { decisionId } = useParams(); const navigate = useNavigate(); const [decision, setDecision] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [choice, setChoice] = useState(""); const [rationale, setRationale] = useState(""); const [reviewDate, setReviewDate] = useState(""); const [saving, setSaving] = useState(false);
-  useEffect(() => { getPersonalDecision(decisionId).then((record) => { setDecision(record); setChoice(record.user_choice || ""); setRationale(record.user_choice_rationale || ""); setReviewDate(record.review_date ? record.review_date.slice(0, 10) : ""); }).catch(() => setError("This decision could not be found.")).finally(() => setLoading(false)); }, [decisionId]);
+  useEffect(() => { getPersonalDecision(decisionId).then((raw) => { const record = consumerValue(raw); setDecision(record); setChoice(record.user_choice || ""); setRationale(record.user_choice_rationale || ""); setReviewDate(record.review_date ? record.review_date.slice(0, 10) : ""); }).catch(() => setError("This decision could not be found.")).finally(() => setLoading(false)); }, [decisionId]);
   async function save(event) { event.preventDefault(); setSaving(true); setError(""); try { const record = await updatePersonalDecision(decisionId, { ...(choice.trim() ? { user_choice: choice.trim(), user_choice_rationale: rationale.trim() || null } : {}), review_date: reviewDate || null }); setDecision(record); setChoice(record.user_choice || ""); setRationale(record.user_choice_rationale || ""); } catch { setError("Your changes could not be saved. Please try again."); } finally { setSaving(false); } }
   async function remove() { if (!window.confirm("Delete this saved decision? Your Ask Aura session will remain available.")) return; try { await deletePersonalDecision(decisionId); navigate("/decisions", { replace: true }); } catch { setError("This decision could not be deleted. Please try again."); } }
   if (loading) return <p role="status" className="p-8 text-lg text-slate-300">Loading decision…</p>; if (error && !decision) return <div className={personal.narrow}><p role="alert" className="text-red-200">{error}</p><Link to="/decisions" className="mt-5 inline-block text-blue-300 underline">Back to Decisions</Link></div>;

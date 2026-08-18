@@ -161,12 +161,15 @@ export async function getOrganizations() {
     return response.data;
 
 }
+export async function requestPasswordReset(email) { return (await API.post("/auth/password-reset/request", { email })).data; }
+export async function confirmPasswordReset(token, password) { return (await API.post("/auth/password-reset/confirm", { token, password })).data; }
 
 // =====================================================
 // PERSONAL ASK / DECISIONS
 // =====================================================
 export async function askAura(payload) { return (await API.post("/personal/ask", payload)).data; }
 export async function getAuraConversation(sessionId) { return (await API.get(`/personal/ask/${sessionId}`)).data; }
+export async function listAuraConversations() { return (await API.get("/personal/conversations")).data; }
 export async function listPersonalDecisions(status = null) { return (await API.get("/personal/decisions", { params: status ? { status } : {} })).data; }
 export async function getPersonalDecision(decisionId) { return (await API.get(`/personal/decisions/${decisionId}`)).data; }
 export async function savePersonalDecision(payload) { return (await API.post("/personal/decisions", payload)).data; }

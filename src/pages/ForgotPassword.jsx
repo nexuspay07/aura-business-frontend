@@ -1,0 +1,7 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import AuthLayout from "../components/auth/AuthLayout";
+import AuthInput from "../components/auth/AuthInput";
+import { requestPasswordReset } from "../services/api";
+
+export default function ForgotPassword(){const [email,setEmail]=useState("");const [message,setMessage]=useState("");const [delivery,setDelivery]=useState(true);const [loading,setLoading]=useState(false);async function submit(event){event.preventDefault();setLoading(true);try{const result=await requestPasswordReset(email);setMessage(result.message);setDelivery(result.delivery_configured);}catch{setMessage("Password reset is temporarily unavailable. Please try again.");}finally{setLoading(false);}}return <AuthLayout title="Reset your password." subtitle="Enter your account email to request a secure reset link."><form onSubmit={submit}><AuthInput label="Email Address" type="email" value={email} onChange={event=>setEmail(event.target.value)} required/>{message&&<div role="status" className="mt-4 rounded-xl border border-white/10 bg-white/[.04] p-4 text-sm leading-6 text-slate-300"><p>{message}</p>{!delivery&&<p className="mt-2 text-amber-200">Email delivery is not configured for this Alpha environment. No email was sent.</p>}</div>}<button disabled={loading} className="mt-5 h-12 w-full rounded-xl bg-blue-500 font-semibold text-white disabled:opacity-60">{loading?"Requesting…":"Request reset"}</button><Link className="mt-5 block text-center text-sm text-blue-300" to="/login">Back to login</Link></form></AuthLayout>}

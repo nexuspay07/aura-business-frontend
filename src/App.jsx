@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AuraCommandCenter from "./pages/AuraCommandCenter";
@@ -22,6 +24,8 @@ import SimulationsPage from "./pages/SimulationsPage";
 import SimulationHistoryPage from "./pages/SimulationHistoryPage";
 import BillingPage from "./pages/BillingPage";
 import SettingsPage from "./pages/SettingsPage";
+import PersonalSettingsPage from "./pages/PersonalSettingsPage";
+import PersonalConversationsPage from "./pages/PersonalConversationsPage";
 import PersonalDecisionsPage from "./pages/PersonalDecisionsExperience";
 import PersonalDecisionDetailPage from "./pages/PersonalDecisionDetailExperience";
 
@@ -204,6 +208,9 @@ function AppRoutes() {
 
             />
 
+            <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+            <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+
             <Route path="/organizations" element={<ProtectedRoute><CapabilityRoute capability="organizations"><DashboardLayout><OrganizationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/organizations/:organizationId" element={<ProtectedRoute><CapabilityRoute capability="organizations"><DashboardLayout><OrganizationDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/workspaces" element={<ProtectedRoute><CapabilityRoute capability="workspaces"><DashboardLayout><WorkspacesPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
@@ -214,6 +221,8 @@ function AppRoutes() {
             <Route path="/simulations/history" element={<ProtectedRoute><CapabilityRoute capability="simulations"><DashboardLayout><SimulationHistoryPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/billing" element={<ProtectedRoute><CapabilityRoute capability="billing"><DashboardLayout><BillingPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/settings/*" element={<ProtectedRoute><CapabilityRoute capability="business_settings"><DashboardLayout><SettingsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/account" element={<ProtectedRoute><DashboardLayout><PersonalSettingsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/conversations" element={<ProtectedRoute><CapabilityRoute capability="ask_aura"><DashboardLayout><PersonalConversationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/decisions" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><PersonalDecisionsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/decisions/:decisionId" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><h2 className="sr-only">What I chose</h2><span className="sr-only">Aura recommends</span><PersonalDecisionDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />

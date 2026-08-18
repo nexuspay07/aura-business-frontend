@@ -1,8 +1,9 @@
-import { LoaderCircle, Send, Sparkles } from "lucide-react";
+import { LoaderCircle, MessageSquarePlus, Send, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { askAura, getAuraConversation, savePersonalDecision } from "../../services/api";
 import { personal } from "./PersonalUI";
+import AuraResponseRenderer from "./AuraResponseRenderer";
 
 const SESSION_KEY = "aura_personal_conversation_id";
 const prompts = ["Explain compound interest simply.", "Help me write an email.", "Should I take this job offer?", "Should I go back to school?"];
@@ -28,7 +29,6 @@ const actionText = (value) => {
     ? clean : `Check whether ${clean.charAt(0).toLowerCase()}${clean.slice(1).replace(/[.!?]+$/, "")}.`;
 };
 const list = (items, transform = financialText) => items?.length ? <ul className="mt-3 space-y-2 text-slate-300">{items.map((item, index) => { const text = transform(item); return text ? <li key={`${text}-${index}`}>• {text}</li> : null; })}</ul> : null;
-
 function DecisionTurn({ decision }) {
   const recommendation = decision.recommendation || {};
   const duplicateReasoning = substantiallySame(recommendation.rationale, decision.analysis);
@@ -42,20 +42,29 @@ function DecisionTurn({ decision }) {
   </div>;
 }
 
+function CurrentSources({ sources = [] }) {
+  const safe = sources.filter((source) => { try { return new URL(source.url).protocol === "https:"; } catch { return false; } });
+  if (!safe.length) return null;
+  return <section className="mt-8 border-t border-white/10 pt-6"><h3 className="text-sm font-semibold uppercase tracking-[.12em] text-slate-400">Sources</h3><div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">{safe.map((source) => <a id={`aura-source-${source.id}`} key={`${source.id}-${source.url}`} href={source.url} target="_blank" rel="noopener noreferrer" className={`min-w-0 scroll-mt-24 rounded-2xl border border-white/10 bg-white/[.025] p-4 transition hover:border-blue-300/30 sm:p-5 ${personal.focus}`}><span className="mb-3 inline-flex min-h-7 min-w-7 items-center justify-center rounded-lg bg-blue-300/10 px-2 text-xs font-semibold text-blue-200" aria-hidden="true">{source.id}</span><span className="block break-words font-medium leading-6 text-slate-100">{consumerText(source.title)}</span><span className="mt-2 block break-words text-xs text-slate-500">{source.domain}</span>{source.published_at && <time className="mt-2 block text-xs text-slate-500">Published {new Date(source.published_at).toLocaleDateString()}</time>}<span className="mt-3 block text-sm font-semibold text-blue-300">Open source</span></a>)}</div></section>;
+}
+
 function AuraTurn({ turn }) {
   const decision = turn.mode === "ANALYSIS_COMPLETE" ? turn.payload : null;
+  const current = turn.mode === "CURRENT_COMPLETE";
   return <article className={turn.role === "user" ? "ml-auto max-w-3xl rounded-3xl bg-blue-500 px-5 py-4 text-white sm:px-6" : "mr-auto max-w-4xl px-1 py-3 text-slate-200 sm:px-2"}>
     <p className={`text-xs font-semibold uppercase tracking-[.14em] ${turn.role === "user" ? "text-blue-100" : "text-blue-300"}`}>{turn.role === "user" ? "You" : "Aura"}</p>
+    {current && <p className="mt-2 text-xs font-semibold uppercase tracking-[.14em] text-emerald-300">Current · verified sources</p>}
     {turn.mode === "CLARIFICATION_REQUIRED" && <h3 className="mt-2 text-lg font-semibold text-white">Before I recommend something, I need to know…</h3>}
-    {!(decision && consumerText(turn.content) === consumerText(decision.recommendation?.recommended_option)) && <p className="mt-2 whitespace-pre-wrap text-[1.05rem] leading-8">{consumerText(turn.content)}</p>}
+    {!(decision && consumerText(turn.content) === consumerText(decision.recommendation?.recommended_option)) && <AuraResponseRenderer content={turn.content} mode={turn.mode} sources={turn.payload?.sources || []}/>} 
     {turn.mode === "CLARIFICATION_REQUIRED" && turn.payload?.questions?.length > 1 && list(turn.payload.questions.slice(1))}
     {decision && <DecisionTurn decision={decision}/>} 
+    {turn.role === "assistant" && <CurrentSources sources={turn.payload?.sources}/>} 
   </article>;
 }
 
 export default function PersonalAskExperience() {
   const location = useLocation();
-  const [initialSessionId] = useState(() => Number(localStorage.getItem(SESSION_KEY)) || null);
+  const [initialSessionId] = useState(() => Number(location.state?.conversationId || localStorage.getItem(SESSION_KEY)) || null);
   const [message, setMessage] = useState(location.state?.suggestedPrompt || "");
   const [result, setResult] = useState(null); const [turns, setTurns] = useState([]); const [sessionId, setSessionId] = useState(null);
   const [loading, setLoading] = useState(false); const [restoring, setRestoring] = useState(Boolean(initialSessionId)); const [error, setError] = useState("");
@@ -68,7 +77,7 @@ export default function PersonalAskExperience() {
 
   async function submit(event) { event.preventDefault(); const text = message.trim(); if (!text || loading) return; setLoading(true); setError(""); try {
     const response = await askAura(result?.mode === "CLARIFICATION_REQUIRED" ? { session_id: sessionId, clarification_response: text } : sessionId ? { session_id: sessionId, message: text } : { message: text });
-    const compatibleTurns = response.turns || [turn("user", text, "USER"), turn("assistant", response.message || response.questions?.[0] || response.recommendation?.recommended_option || "Aura completed the request.", response.mode, response.mode === "ANALYSIS_COMPLETE" ? response : response.questions ? { questions: response.questions } : undefined)];
+    const compatibleTurns = response.turns || [turn("user", text, "USER"), turn("assistant", response.message || response.questions?.[0] || response.recommendation?.recommended_option || "Aura completed the request.", response.mode, response.mode === "ANALYSIS_COMPLETE" ? response : response.mode?.startsWith("CURRENT_") ? { sources: response.sources || [] } : response.questions ? { questions: response.questions } : undefined)];
     setResult(response); setTurns(compatibleTurns); setSessionId(response.session_id); localStorage.setItem(SESSION_KEY, String(response.session_id)); setMessage("");
   } catch (requestError) { setError(({ 503: "Aura is temporarily unavailable. Please try again shortly.", 504: "Aura needs a little more time. Please try again.", 422: "Aura couldn't produce a reliable answer from the available information." })[requestError?.response?.status] || "Aura couldn't complete that request. Please try again."); } finally { setLoading(false); } }
   function keyDown(event) { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }
@@ -78,7 +87,7 @@ export default function PersonalAskExperience() {
   return <div className="mx-auto flex min-h-[calc(100vh-9rem)] w-full max-w-5xl flex-col px-1">
     {turns.length === 0 && !restoring && <header className="pb-8 pt-7 text-center sm:pb-10 sm:pt-12"><div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-300"><Sparkles size={17}/>Aura</div><h1 className={`${personal.hero} mx-auto mt-5 max-w-4xl`}>What's on your mind?</h1><p className={`${personal.body} mx-auto mt-4 max-w-2xl`}>Aura helps you understand, decide, and move forward.</p></header>}
     {restoring && <p role="status" className="flex flex-1 items-center justify-center gap-2 text-slate-400"><LoaderCircle className="animate-spin" size={17}/>Restoring your conversation…</p>}
-    {turns.length > 0 && <section aria-live="polite" aria-label="Conversation" className="flex-1 space-y-5 pb-8 pt-3">{turns.map((turn, index) => <AuraTurn key={`${turn.created_at || "turn"}-${index}`} turn={turn}/>)}<div ref={endRef}/></section>}
+    {turns.length > 0 && <><div className="flex justify-end pb-3"><button type="button" onClick={() => { localStorage.removeItem(SESSION_KEY); setTurns([]); setResult(null); setSessionId(null); setSaved(null); setMessage(""); }} className={`inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm text-slate-300 hover:bg-white/5 ${personal.focus}`}><MessageSquarePlus size={17}/>New Conversation</button></div><section aria-live="polite" aria-label="Conversation" className="flex-1 space-y-5 pb-8 pt-3">{turns.map((turn, index) => <AuraTurn key={`${turn.created_at || "turn"}-${index}`} turn={turn}/>)}<div ref={endRef}/></section></>}
     {result?.mode === "ANALYSIS_COMPLETE" && <div className="mb-4 px-2">{saved ? <p role="status" className="text-sm text-emerald-200">Decision saved. Saved to Decisions · <Link className="underline underline-offset-4" to={`/decisions/${saved.id}`}>View decision</Link></p> : <button onClick={saveDecision} disabled={saving} className={`text-sm font-semibold text-blue-300 hover:text-blue-200 disabled:opacity-50 ${personal.focus}`}>{saving ? "Saving…" : "Save Decision"}</button>}</div>}
     <form onSubmit={submit} className="sticky bottom-0 rounded-[28px] border border-white/10 bg-[#0d121b]/95 p-3 shadow-2xl shadow-black/30 backdrop-blur sm:p-4"><label className="sr-only" htmlFor="ask-aura-message">Message Aura</label><textarea id="ask-aura-message" value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={keyDown} disabled={loading || restoring} placeholder="Talk to Aura..." rows={turns.length ? 3 : 6} className="w-full resize-none rounded-2xl border-0 bg-transparent px-4 py-3 text-lg leading-8 text-slate-100 outline-none placeholder:text-slate-600 focus:ring-1 focus:ring-blue-300/60 disabled:opacity-60 sm:px-5"/><div className="flex items-center justify-between gap-4 px-3 pb-1 pt-2"><p className="text-xs text-slate-500">Enter to send · Shift+Enter for a new line</p><button type="submit" disabled={!message.trim() || loading || restoring} className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-blue-500 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-400 disabled:opacity-40 ${personal.focus}`}><Send size={17}/>{loading ? "Thinking…" : clarification ? "Continue" : "Send"}</button></div>{loading && <p role="status" className="mx-3 mt-2 flex items-center gap-2 border-t border-white/[.07] py-3 text-sm text-blue-200"><LoaderCircle className="animate-spin" size={16}/>Aura is thinking…</p>}{error && <p role="alert" className="mx-3 mt-2 border-t border-white/[.07] py-3 text-sm text-red-200">{error}</p>}</form>
     {turns.length === 0 && !restoring && <section className="pb-8 pt-6"><p className={personal.eyebrow}>Try asking</p><div className="mt-3 flex flex-wrap gap-3">{prompts.map((prompt) => <button key={prompt} type="button" onClick={() => setMessage(prompt)} className={`rounded-full border border-white/10 px-4 py-2.5 text-sm text-slate-300 hover:border-white/20 ${personal.focus}`}>{prompt}</button>)}</div></section>}
