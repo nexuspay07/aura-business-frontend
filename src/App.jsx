@@ -28,6 +28,9 @@ import PersonalSettingsPage from "./pages/PersonalSettingsPage";
 import PersonalConversationsPage from "./pages/PersonalConversationsPage";
 import PersonalDecisionsPage from "./pages/PersonalDecisionsExperience";
 import PersonalDecisionDetailPage from "./pages/PersonalDecisionDetailExperience";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
+import PrivateAlphaNotice from "./pages/PrivateAlphaNotice";
 
 import {
     AuthProvider,
@@ -226,6 +229,9 @@ function AppRoutes() {
             <Route path="/decisions" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><PersonalDecisionsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/decisions/:decisionId" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><h2 className="sr-only">What I chose</h2><span className="sr-only">Aevric AI recommends</span><PersonalDecisionDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfUse />} />
+            <Route path="/alpha" element={<PrivateAlphaNotice />} />
             <Route path="/" element={<Landing />} />
 
             {/* FIRST TIME ORGANIZATION SETUP */}
