@@ -25,7 +25,7 @@ export default function ExecutiveReport({ report }) {
 
   return <article className="space-y-5">
     <header className="rounded-3xl bg-slate-950 p-7 text-white shadow-xl">
-      <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">Aura executive intelligence</p><h2 className="mt-2 text-2xl font-bold">{report.title}</h2></div><button onClick={copyReport} className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-3 py-2 text-xs hover:bg-white/10"><Clipboard size={14} />Copy report</button></div>
+      <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">Aevric AI executive intelligence</p><h2 className="mt-2 text-2xl font-bold">{report.title}</h2></div><button onClick={copyReport} className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-3 py-2 text-xs hover:bg-white/10"><Clipboard size={14} />Copy report</button></div>
       <p className="mt-5 max-w-3xl text-base leading-7 text-slate-200">{report.executive_summary}</p>
       <div className="mt-6 flex flex-wrap gap-3"><span className="rounded-full bg-white/10 px-3 py-1 text-sm">Confidence: {confidence}%</span><span className="rounded-full bg-white/10 px-3 py-1 text-sm">{report.confidence?.level || "moderate"} evidence</span></div>
     </header>

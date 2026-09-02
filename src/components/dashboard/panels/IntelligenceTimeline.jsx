@@ -76,13 +76,13 @@ export default function IntelligenceTimeline({
 
                     <p className="mt-4 text-gray-600">
 
-                        Aura hasn't generated any intelligence yet.
+                        Aevric AI hasn't generated any intelligence yet.
 
                     </p>
 
                     <p className="text-gray-400 mt-2">
 
-                        As you interact with Aura, completed analyses and insights will appear here.
+                        As you interact with Aevric AI, completed analyses and insights will appear here.
 
                     </p>
 

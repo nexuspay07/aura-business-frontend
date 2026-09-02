@@ -82,7 +82,7 @@ export default function OrganizationWizard() {
 
             <h1 className="text-3xl font-bold mb-2">
 
-                Welcome to Aura
+                Welcome to Aevric AI
 
             </h1>
 
@@ -110,7 +110,7 @@ export default function OrganizationWizard() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full border rounded-lg p-3"
-                        placeholder="Aura Platform"
+                        placeholder="Aevric AI Platform"
                     />
 
                 </div>

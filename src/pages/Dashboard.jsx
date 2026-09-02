@@ -59,7 +59,7 @@ function BusinessDashboard() {
 
                         <h1 className="text-3xl font-bold">
 
-                            Loading Aura...
+                            Loading Aevric AI...
 
                         </h1>
 
@@ -85,7 +85,7 @@ function BusinessDashboard() {
 
                         <h2 className="text-2xl font-bold text-red-600">
 
-                            Unable to load Aura
+                            Unable to load Aevric AI
 
                         </h2>
 
@@ -117,13 +117,13 @@ function BusinessDashboard() {
 
                     <h1 className="text-4xl font-bold">
 
-                        Aura Executive Intelligence
+                        Aevric AI Executive Intelligence
 
                     </h1>
 
                     <p className="mt-3 text-violet-100">
 
-                        Ask Aura to analyze any business challenge,
+                        Ask Aevric AI to analyze any business challenge,
                         opportunity or strategic decision.
 
                     </p>

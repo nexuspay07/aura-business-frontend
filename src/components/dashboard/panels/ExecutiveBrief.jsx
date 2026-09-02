@@ -59,7 +59,7 @@ export default function ExecutiveBrief({
 
                 <p className="text-gray-500 mt-4">
 
-                    Aura has not generated an executive briefing yet.
+                    Aevric AI has not generated an executive briefing yet.
 
                 </p>
 
@@ -219,7 +219,7 @@ export default function ExecutiveBrief({
                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition"
                     >
 
-                        Ask Aura
+                        Ask Aevric AI
 
                         <ArrowRight size={18}/>
 

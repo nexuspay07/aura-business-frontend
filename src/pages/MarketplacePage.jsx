@@ -27,7 +27,7 @@ export default function MarketplacePage() {
   };
   const remove = async (id) => { try { await deleteMarketplaceItem(id); await load("mine"); } catch { setError("The item could not be deleted."); } };
   return <section className="mx-auto max-w-7xl space-y-8">
-    <header><p className="text-sm font-semibold text-blue-400">Capability library</p><h1 className="mt-2 text-3xl font-semibold text-white">Marketplace</h1><p className="mt-2 max-w-2xl text-slate-400">Browse shared Aura strategies and manage the items owned by your organization.</p></header>
+    <header><p className="text-sm font-semibold text-blue-400">Capability library</p><h1 className="mt-2 text-3xl font-semibold text-white">Marketplace</h1><p className="mt-2 max-w-2xl text-slate-400">Browse shared Aevric AI strategies and manage the items owned by your organization.</p></header>
     <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
       <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5"><div className="mb-5 flex gap-2 border-b border-white/10"><button onClick={() => setTab("public")} className={`px-3 py-2 text-sm ${tab === "public" ? "border-b-2 border-blue-400 text-white" : "text-slate-400"}`}>Public items</button><button onClick={() => setTab("mine")} className={`px-3 py-2 text-sm ${tab === "mine" ? "border-b-2 border-blue-400 text-white" : "text-slate-400"}`}>My items</button></div>
         {error && <p role="alert" className="mb-4 rounded-lg border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}

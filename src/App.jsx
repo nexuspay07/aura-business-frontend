@@ -224,7 +224,7 @@ function AppRoutes() {
             <Route path="/account" element={<ProtectedRoute><DashboardLayout><PersonalSettingsPage /></DashboardLayout></ProtectedRoute>} />
             <Route path="/conversations" element={<ProtectedRoute><CapabilityRoute capability="ask_aura"><DashboardLayout><PersonalConversationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/decisions" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><PersonalDecisionsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
-            <Route path="/decisions/:decisionId" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><h2 className="sr-only">What I chose</h2><span className="sr-only">Aura recommends</span><PersonalDecisionDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/decisions/:decisionId" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><h2 className="sr-only">What I chose</h2><span className="sr-only">Aevric AI recommends</span><PersonalDecisionDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/" element={<Landing />} />
 

@@ -19,9 +19,9 @@ export default function QuickActions({
 
         {
 
-            title: "Ask Aura",
+            title: "Ask Aevric AI",
 
-            description: "Chat with Aura about your business.",
+            description: "Chat with Aevric AI about your business.",
 
             icon: MessageSquare,
 

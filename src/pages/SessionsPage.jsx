@@ -114,7 +114,7 @@ export default function SessionsPage() {
               font-bold
             "
           >
-            Aura Sessions
+            Aevric AI Sessions
           </h1>
 
           <p

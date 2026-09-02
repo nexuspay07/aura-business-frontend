@@ -45,7 +45,7 @@ export default function AuraBrainCard() {
         />
 
         <h2 className="text-xl font-bold text-slate-900">
-          Aura Brain
+          Aevric AI Brain
         </h2>
       </div>
 

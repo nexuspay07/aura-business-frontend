@@ -46,7 +46,7 @@ export default function OrganizationSetup() {
     // organization is present, this is a recovery state—not a request to
     // create another organization.
     if (organization && !workspace) {
-        return <div className="flex min-h-screen items-center justify-center bg-[#080a0f] p-6 text-slate-100"><section className="max-w-lg rounded-2xl border border-white/10 bg-white/[.03] p-8"><h1 className="text-2xl font-bold">Workspace recovery needed</h1><p className="mt-3 text-slate-400">Your organization exists, but Aura OS could not load an accessible workspace. Contact an organization owner to restore workspace access, then refresh this page.</p></section></div>;
+        return <div className="flex min-h-screen items-center justify-center bg-[#080a0f] p-6 text-slate-100"><section className="max-w-lg rounded-2xl border border-white/10 bg-white/[.03] p-8"><h1 className="text-2xl font-bold">Workspace recovery needed</h1><p className="mt-3 text-slate-400">Your organization exists, but Aevric AI could not load an accessible workspace. Contact an organization owner to restore workspace access, then refresh this page.</p></section></div>;
     }
 
     // Genuine recovery: no organization is available.

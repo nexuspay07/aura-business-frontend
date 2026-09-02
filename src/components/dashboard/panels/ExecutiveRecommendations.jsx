@@ -75,7 +75,7 @@ export default function ExecutiveRecommendations({
 
                     <p className="mt-4 text-gray-600">
 
-                        Aura has not generated any recommendations yet.
+                        Aevric AI has not generated any recommendations yet.
 
                     </p>
 
