@@ -14,9 +14,9 @@ test("Personal profile owns Settings and Logout without a persistent sidebar log
   await auth(page);await page.route("**/personal/decisions",r=>r.fulfill({contentType:"application/json",body:"[]"}));await page.goto("/dashboard");await expect(page.getByLabel("Primary navigation").getByRole("button",{name:"Logout"})).toHaveCount(0);await page.getByRole("button",{name:"Open profile menu"}).click();await page.getByRole("menuitem",{name:"Settings"}).click();await expect(page).toHaveURL(/\/account$/);await expect(page.getByRole("heading",{name:"Settings"})).toBeVisible();await page.getByRole("button",{name:"Open profile menu"}).click();await page.getByRole("menuitem",{name:"Logout"}).click();await expect(page).toHaveURL(/\/login$/);
 });
 
-test("Forgot password uses neutral Alpha-safe delivery messaging",async({page})=>{
-  await page.route("**/auth/password-reset/request",r=>r.fulfill({contentType:"application/json",body:JSON.stringify({message:"If an account exists for that email, the password reset request has been accepted.",delivery_configured:false})}));
-  await page.goto("/login");await page.getByRole("link",{name:"Forgot password?"}).click();await page.getByLabel("Email Address").fill("person@aura.local");await page.getByRole("button",{name:"Request reset"}).click();await expect(page.getByRole("status")).toContainText("If an account exists");await expect(page.getByRole("status")).toContainText("No email was sent");
+test("Forgot password uses neutral enumeration-safe delivery messaging",async({page})=>{
+  await page.route("**/auth/password-reset/request",r=>r.fulfill({contentType:"application/json",body:JSON.stringify({message:"If an account exists for that email, the password reset request has been accepted."})}));
+  await page.goto("/login");await page.getByRole("link",{name:"Forgot password?"}).click();await page.getByLabel("Email Address").fill("person@aevric.test");await page.getByRole("button",{name:"Request reset"}).click();await expect(page.getByRole("status")).toContainText("If an account exists");await expect(page.getByRole("status")).not.toContainText("No email was sent");await expect(page.getByRole("button",{name:"Request accepted"})).toBeDisabled();
 });
 
 test("Conversations lists, reopens, and continues the selected owned session",async({page})=>{
