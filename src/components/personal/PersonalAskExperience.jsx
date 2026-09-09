@@ -52,7 +52,7 @@ function DecisionTurn({ decision }) {
     {Object.values(quality).some((items) => items?.length) && <section><h3 className="font-semibold text-white">Known / Derived / Assumed / Unknown</h3>{["known","derived","assumed","unknown"].map((kind) => quality[kind]?.length ? <div className="mt-3" key={kind}><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-400">{kind}</p>{list(quality[kind])}</div> : null)}</section>}
     {decision.unresolved_questions?.length > 0 && <section><h3 className="font-semibold text-white">What I'm not sure about</h3>{list(decision.unresolved_questions)}</section>}
     {(recommendation.what_would_change_the_recommendation || decision.what_would_change_recommendation)?.length > 0 && <section><h3 className="font-semibold text-white">What could change this</h3>{list(recommendation.what_would_change_the_recommendation || decision.what_would_change_recommendation)}</section>}
-    {phases.length > 0 && <section><h3 className="font-semibold text-white">{decision.decision_plan.horizon_days}-Day Plan</h3><div className="mt-3 space-y-5">{phases.map((phase) => <div key={phase.phase}><p className="font-medium text-slate-100">{phase.phase} · {phase.objective}</p>{list(phase.actions,actionText)}<p className="mt-2 text-sm text-slate-400">Checkpoint: {financialText(phase.checkpoint)}</p><p className="mt-1 text-sm text-slate-400">Reassess if: {financialText(phase.reassessment_trigger)}</p></div>)}</div></section>}
+    {phases.length > 0 && <section><h3 className="font-semibold text-white">{decision.decision_plan.horizon_label || `${decision.decision_plan.horizon_days}-Day`} Plan</h3><div className="mt-3 space-y-5">{phases.map((phase) => <div key={phase.phase}><p className="font-medium text-slate-100">{phase.phase} · {phase.objective}</p>{list(phase.actions,actionText)}<p className="mt-2 text-sm text-slate-400">Checkpoint: {financialText(phase.checkpoint)}</p><p className="mt-1 text-sm text-slate-400">Reassess if: {financialText(phase.reassessment_trigger)}</p></div>)}</div></section>}
     {!phases.length && decision.prioritized_actions?.length > 0 && <section><h3 className="font-semibold text-white">Next steps</h3>{list(decision.prioritized_actions, actionText)}</section>}
     {decision.next_move && <section><h3 className="font-semibold text-white">Next move</h3><p className="mt-2 text-slate-300">{actionText(decision.next_move)}</p></section>}
   </div>;
@@ -81,7 +81,7 @@ function AuraTurn({ turn }) {
 
 export default function PersonalAskExperience() {
   const location = useLocation();
-  const [initialSessionId] = useState(() => Number(location.state?.conversationId || localStorage.getItem(SESSION_KEY)) || null);
+  const [initialSessionId] = useState(() => location.state?.newConversation ? null : Number(location.state?.conversationId || localStorage.getItem(SESSION_KEY)) || null);
   const [message, setMessage] = useState(location.state?.suggestedPrompt || "");
   const [result, setResult] = useState(null); const [turns, setTurns] = useState([]); const [sessionId, setSessionId] = useState(null);
   const [loading, setLoading] = useState(false); const [restoring, setRestoring] = useState(Boolean(initialSessionId)); const [error, setError] = useState("");
@@ -90,6 +90,7 @@ export default function PersonalAskExperience() {
   useEffect(() => { const stored = initialSessionId; if (!stored) return;
     getAuraConversation(stored).then((conversation) => { setSessionId(conversation.session_id); setTurns(conversation.turns || []); setResult(conversation.decision || { mode: conversation.mode, classification: conversation.classification, questions: conversation.questions || [] }); }).catch(() => localStorage.removeItem(SESSION_KEY)).finally(() => setRestoring(false));
   }, [initialSessionId]);
+  useEffect(() => { if (location.state?.newConversation) localStorage.removeItem(SESSION_KEY); }, [location.state]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [turns]);
 
   async function submit(event) { event.preventDefault(); const text = message.trim(); if (!text || loading) return; setLoading(true); setError(""); try {
