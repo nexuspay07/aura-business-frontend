@@ -43,6 +43,14 @@ test("Personal decision presentation removes live provenance, duplicate reasonin
   await expect(page.getByText(/\[(?:user-query|derived:|document:)/)).toHaveCount(0);
   await expect(page.getByText("Monthly budget appears able to absorb ownership costs better given a $1,600 surplus",{exact:true})).toHaveCount(0);
   await expect(page.locator("li").filter({hasText:"You currently have a $1,600 monthly surplus before any additional car-related costs."})).toBeVisible();
-  await expect(page.locator("li").filter({hasText:"Check whether a suitable car is available below a price that leaves at least $20,000 remaining."})).toBeVisible();
+  await expect(page.locator("li").filter({hasText:"A suitable car is available below a price that leaves at least $20,000 remaining."})).toBeVisible();
+  await expect(page.getByText(/Check whether (?:clarify|run|update)/i)).toHaveCount(0);
   await expect(page.getByRole("button",{name:"Save Decision"})).toBeVisible();
+});
+
+test("backend plan actions remain verbatim at the final presentation boundary",async({page})=>{
+  await auth(page);const action="Clarify the available budget before committing";const decision={mode:"ANALYSIS_COMPLETE",classification:"education_decision",problem_understanding:"Choose a path.",analysis:"Compare the grounded paths.",alternatives:[],recommendation:{recommended_option:"Take the reversible path",rationale:"It preserves flexibility."},evidence_quality:{known:["Current status: studying"],derived:[],assumed:[],unknown:["Available budget"]},decision_plan:{horizon_label:"12-Month",phases:[{phase:"Months 1–3",objective:"Confirm feasibility",actions:[action],checkpoint:"Record the confirmed budget",reassessment_trigger:"The budget changes materially"}]},next_move:action};
+  await page.route("**/personal/ask",route=>route.fulfill({contentType:"application/json",body:JSON.stringify({...decision,session_id:111,turns:[turn("user","Help me choose"),turn("assistant",decision.recommendation.recommended_option,"ANALYSIS_COMPLETE",decision)]})}));
+  await page.goto("/intelligence");await page.getByLabel("Message Aevric AI").fill("Help me choose");await page.getByRole("button",{name:"Send"}).click();
+  await expect(page.getByRole("heading",{name:"12-Month Plan"}).locator("..")).toContainText(action);await expect(page.getByRole("heading",{name:"Next move"}).locator("..")).toContainText(action);await expect(page.getByText(/Check whether clarify/i)).toHaveCount(0);
 });

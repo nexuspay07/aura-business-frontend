@@ -24,9 +24,7 @@ const substantiallySame = (left, right) => {
 };
 const financialText = (value) => consumerText(value).replace(/Monthly budget appears able to absorb ownership costs better given a (\$[\d,]+) surplus\.?/gi, "You currently have a $1 monthly surplus before any additional car-related costs.");
 const actionText = (value) => {
-  const clean = financialText(value); if (!clean) return clean;
-  return /^(?:set|compare|check|confirm|verify|review|calculate|identify|ask|contact|gather|choose|decide|wait|keep|revisit|research|request|list|test|discuss|schedule|save|apply|enroll|buy|avoid|determine|estimate|validate)\b/i.test(clean)
-    ? clean : `Check whether ${clean.charAt(0).toLowerCase()}${clean.slice(1).replace(/[.!?]+$/, "")}.`;
+  return financialText(value);
 };
 const list = (items, transform = financialText) => items?.length ? <ul className="mt-3 space-y-2 text-slate-300">{items.map((item, index) => { const text = transform(item); return text ? <li key={`${text}-${index}`}>• {text}</li> : null; })}</ul> : null;
 function DecisionTurn({ decision }) {
