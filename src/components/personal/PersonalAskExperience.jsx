@@ -39,6 +39,9 @@ function DecisionTurn({ decision }) {
   const tensions = (decision.goal_tensions || []).map((item) => item.tension || (item.between || []).join(" versus "));
   const effects = (decision.causal_effects || []).map((item) => `${item.cause} ${item.qualification || "may"} lead to ${item.effect}`);
   const quality = decision.evidence_quality || {};
+  const unresolved = (decision.unresolved_questions || []).filter((item) =>
+    !(quality.unknown || []).some((unknown) => substantiallySame(item, unknown))
+  );
   const phases = decision.decision_plan?.phases || [];
   return <div className="mt-6 space-y-7 border-t border-white/10 pt-6">
     <p className="text-xs font-semibold uppercase tracking-[.16em] text-slate-500">Aevric Decision</p>
@@ -50,7 +53,7 @@ function DecisionTurn({ decision }) {
     {decision.alternatives?.length > 0 && <section><h3 className="font-semibold text-white">Trade-offs</h3><div className="mt-3 space-y-4">{decision.alternatives.map((option) => <div key={option.option}><p className="font-medium text-slate-100">{financialText(option.option)}</p>{list([...(option.benefits || []), ...(option.downsides || []).map((item) => `Trade-off: ${item}`)])}</div>)}</div></section>}
     {(decision.risks?.length > 0 || decision.uncertainties?.length > 0 || effects.length > 0) && <section><h3 className="font-semibold text-white">Risks & uncertainty</h3>{list([...(decision.risks || []),...(decision.uncertainties || []), ...effects])}</section>}
     {Object.values(quality).some((items) => items?.length) && <section><h3 className="font-semibold text-white">Known / Derived / Assumed / Unknown</h3>{["known","derived","assumed","unknown"].map((kind) => quality[kind]?.length ? <div className="mt-3" key={kind}><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-400">{kind}</p>{list(quality[kind])}</div> : null)}</section>}
-    {decision.unresolved_questions?.length > 0 && <section><h3 className="font-semibold text-white">What I'm not sure about</h3>{list(decision.unresolved_questions)}</section>}
+    {unresolved.length > 0 && <section><h3 className="font-semibold text-white">What I'm not sure about</h3>{list(unresolved)}</section>}
     {(recommendation.what_would_change_the_recommendation || decision.what_would_change_recommendation)?.length > 0 && <section><h3 className="font-semibold text-white">What could change this</h3>{list(recommendation.what_would_change_the_recommendation || decision.what_would_change_recommendation)}</section>}
     {phases.length > 0 && <section><h3 className="font-semibold text-white">{decision.decision_plan.horizon_label || `${decision.decision_plan.horizon_days}-Day`} Plan</h3><div className="mt-3 space-y-5">{phases.map((phase) => <div key={phase.phase}><p className="font-medium text-slate-100">{phase.phase} · {phase.objective}</p>{list(phase.actions,actionText)}<p className="mt-2 text-sm text-slate-400">Checkpoint: {financialText(phase.checkpoint)}</p><p className="mt-1 text-sm text-slate-400">Reassess if: {financialText(phase.reassessment_trigger)}</p></div>)}</div></section>}
     {!phases.length && decision.prioritized_actions?.length > 0 && <section><h3 className="font-semibold text-white">Next steps</h3>{list(decision.prioritized_actions, actionText)}</section>}
