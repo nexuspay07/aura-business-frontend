@@ -22,7 +22,7 @@ const substantiallySame = (left, right) => {
   const shared = [...aWords].filter((word) => bWords.has(word)).length;
   return shared / Math.min(aWords.size, bWords.size) >= 0.82;
 };
-const financialText = (value) => consumerText(value).replace(/Monthly budget appears able to absorb ownership costs better given a (\$[\d,]+) surplus\.?/gi, "You currently have a $1 monthly surplus before any additional car-related costs.");
+const financialText = (value) => consumerText(value);
 const actionText = (value) => {
   return financialText(value);
 };

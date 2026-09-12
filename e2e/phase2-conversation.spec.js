@@ -41,8 +41,8 @@ test("Personal decision presentation removes live provenance, duplicate reasonin
   await page.goto("/intelligence");await page.getByLabel("Message Aevric AI").fill("Should I buy a $30,000 car?");await page.getByRole("button",{name:"Send"}).click();
   await expect(page.getByText(repeated,{exact:true})).toHaveCount(1);
   await expect(page.getByText(/\[(?:user-query|derived:|document:)/)).toHaveCount(0);
-  await expect(page.getByText("Monthly budget appears able to absorb ownership costs better given a $1,600 surplus",{exact:true})).toHaveCount(0);
-  await expect(page.locator("li").filter({hasText:"You currently have a $1,600 monthly surplus before any additional car-related costs."})).toBeVisible();
+  await expect(page.locator("li").filter({hasText:"Monthly budget appears able to absorb ownership costs better given a $1,600 surplus"})).toBeVisible();
+  await expect(page.getByText("You currently have a $1,600 monthly surplus before any additional car-related costs.",{exact:true})).toHaveCount(0);
   await expect(page.locator("li").filter({hasText:"A suitable car is available below a price that leaves at least $20,000 remaining."})).toBeVisible();
   await expect(page.getByText(/Check whether (?:clarify|run|update)/i)).toHaveCount(0);
   await expect(page.getByRole("button",{name:"Save Decision"})).toBeVisible();
