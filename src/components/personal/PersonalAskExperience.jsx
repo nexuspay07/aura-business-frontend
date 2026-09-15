@@ -29,7 +29,6 @@ const actionText = (value) => {
 const list = (items, transform = financialText) => items?.length ? <ul className="mt-3 space-y-2 text-slate-300">{items.map((item, index) => { const text = transform(item); return text ? <li key={`${text}-${index}`}>• {text}</li> : null; })}</ul> : null;
 function DecisionTurn({ decision }) {
   const recommendation = decision.recommendation || {};
-  const duplicateReasoning = substantiallySame(recommendation.rationale, decision.analysis);
   const ledgerText = (item) => `${String(item.category || "").replaceAll("_", " ")}${item.category ? " · " : ""}${String(item.type || "item").replaceAll("_", " ")}: ${item.value}`;
   const resources = (decision.resources || []).map(ledgerText);
   const constraints = (decision.constraints || []).map(ledgerText);
@@ -43,8 +42,7 @@ function DecisionTurn({ decision }) {
   const phases = decision.decision_plan?.phases || [];
   return <div className="mt-6 space-y-7 border-t border-white/10 pt-6">
     <p className="text-xs font-semibold uppercase tracking-[.16em] text-slate-500">Aevric Decision</p>
-    <section><span className="sr-only">Aevric AI recommends</span><p className="text-sm font-semibold uppercase tracking-[.12em] text-blue-300">Recommendation</p><p className="mt-2 text-2xl font-semibold text-white">{financialText(recommendation.recommended_option)}</p>{recommendation.rationale && !duplicateReasoning && <p className="mt-3 max-w-3xl leading-7 text-slate-300">{financialText(recommendation.rationale)}</p>}</section>
-    {decision.analysis && <section><h3 className="font-semibold text-white">Why this is the recommendation</h3><p className="mt-2 max-w-3xl leading-7 text-slate-300">{financialText(decision.analysis)}</p></section>}
+    <section><span className="sr-only">Aevric AI recommends</span><p className="text-sm font-semibold uppercase tracking-[.12em] text-blue-300">Recommendation</p><p className="mt-2 text-2xl font-semibold text-white">{financialText(recommendation.recommended_option)}</p>{recommendation.rationale && <><h3 className="mt-5 font-semibold text-white">Why this is the recommendation</h3><p className="mt-2 max-w-3xl leading-7 text-slate-300">{financialText(recommendation.rationale)}</p></>}</section>
     {decision.decision_drivers?.length > 0 && <section><h3 className="font-semibold text-white">Decision drivers</h3>{list(decision.decision_drivers)}</section>}
     {(decision.goals?.length > 0 || tensions.length > 0) && <section><h3 className="font-semibold text-white">Goals & tensions</h3>{list(decision.goals)}{list(tensions)}</section>}
     {(resources.length > 0 || constraints.length > 0 || trends.length > 0) && <section><h3 className="font-semibold text-white">Resources & constraints</h3>{list([...resources,...constraints,...trends])}</section>}
@@ -52,7 +50,7 @@ function DecisionTurn({ decision }) {
     {(decision.risks?.length > 0 || decision.uncertainties?.length > 0 || effects.length > 0) && <section><h3 className="font-semibold text-white">Risks & uncertainty</h3>{list([...(decision.risks || []),...(decision.uncertainties || []), ...effects])}</section>}
     {Object.values(quality).some((items) => items?.length) && <section><h3 className="font-semibold text-white">Known / Derived / Assumed / Unknown</h3>{["known","derived","assumed","unknown"].map((kind) => quality[kind]?.length ? <div className="mt-3" key={kind}><p className="text-xs font-semibold uppercase tracking-[.12em] text-slate-400">{kind}</p>{list(quality[kind])}</div> : null)}</section>}
     {unresolved.length > 0 && <section><h3 className="font-semibold text-white">What I'm not sure about</h3>{list(unresolved)}</section>}
-    {(recommendation.what_would_change_the_recommendation || decision.what_would_change_recommendation)?.length > 0 && <section><h3 className="font-semibold text-white">What could change this</h3>{list(recommendation.what_would_change_the_recommendation || decision.what_would_change_recommendation)}</section>}
+    {recommendation.what_would_change_the_recommendation?.length > 0 && <section><h3 className="font-semibold text-white">What could change this</h3>{list(recommendation.what_would_change_the_recommendation)}</section>}
     {phases.length > 0 && <section><h3 className="font-semibold text-white">{decision.decision_plan.horizon_label || `${decision.decision_plan.horizon_days}-Day`} Plan</h3><div className="mt-3 space-y-5">{phases.map((phase) => <div key={phase.phase}><p className="font-medium text-slate-100">{phase.phase} · {phase.objective}</p>{list(phase.actions,actionText)}<p className="mt-2 text-sm text-slate-400">Checkpoint: {financialText(phase.checkpoint)}</p><p className="mt-1 text-sm text-slate-400">Reassess if: {financialText(phase.reassessment_trigger)}</p></div>)}</div></section>}
     {!phases.length && decision.prioritized_actions?.length > 0 && <section><h3 className="font-semibold text-white">Next steps</h3>{list(decision.prioritized_actions, actionText)}</section>}
     {decision.next_move && <section><h3 className="font-semibold text-white">Next move</h3><p className="mt-2 text-slate-300">{actionText(decision.next_move)}</p></section>}
