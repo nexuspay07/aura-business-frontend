@@ -31,6 +31,10 @@ import PersonalDecisionDetailPage from "./pages/PersonalDecisionDetailExperience
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import PrivateAlphaNotice from "./pages/PrivateAlphaNotice";
+import ControlCenterLayout from "./layouts/ControlCenterLayout";
+import ControlCenterOverview from "./pages/control-center/OverviewPage";
+import ControlCenterUsers from "./pages/control-center/UsersPage";
+import ControlCenterIntelligence from "./pages/control-center/IntelligencePage";
 
 import {
     AuthProvider,
@@ -233,6 +237,12 @@ function AppRoutes() {
             <Route path="/terms" element={<TermsOfUse />} />
             <Route path="/alpha" element={<PrivateAlphaNotice />} />
             <Route path="/" element={<Landing />} />
+
+            <Route path="/admin" element={<ProtectedRoute requireOrganization={false}><ControlCenterLayout /></ProtectedRoute>}>
+                <Route index element={<ControlCenterOverview />} />
+                <Route path="users" element={<ControlCenterUsers />} />
+                <Route path="intelligence" element={<ControlCenterIntelligence />} />
+            </Route>
 
             {/* FIRST TIME ORGANIZATION SETUP */}
 
