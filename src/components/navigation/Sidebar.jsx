@@ -11,6 +11,7 @@ import {
   FlaskConical,
   CreditCard,
   Settings,
+  Target,
 } from "lucide-react";
 
 import { useLayoutEffect, useRef } from "react";
@@ -38,6 +39,12 @@ const menuItems = [
     icon: Sparkles,
     path: "/decisions",
     capability: "decisions",
+  },
+  {
+    title: "Strategies",
+    icon: Target,
+    path: "/strategies",
+    capability: null,
   },
   {
     title: "Conversations",
@@ -206,7 +213,7 @@ export default function Sidebar({
           >
             {menuItems
               .filter(({ capability }) =>
-                hasCapability(capabilities, capability)
+                !capability || hasCapability(capabilities, capability)
               )
               .map(
                 ({

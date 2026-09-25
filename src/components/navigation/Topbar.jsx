@@ -6,7 +6,7 @@ import ProfileMenu from "../profile/ProfileMenu";
 import NotificationBell from "../notifications/NotificationBell";
 import { useSession } from "../../context/SessionContext";
 
-const pageNames = { "/dashboard": "Home", "/intelligence": "Decision Center", "/sessions": "Saved Sessions", "/organizations": "Organizations", "/workspaces": "Workspaces", "/marketplace": "Marketplace", "/simulations": "Simulation Center", "/simulations/history": "Saved simulations", "/billing": "Billing", "/settings": "Settings" };
+  const pageNames = { "/dashboard": "Home", "/intelligence": "Decision Center", "/sessions": "Saved Sessions", "/organizations": "Organizations", "/workspaces": "Workspaces", "/marketplace": "Marketplace", "/simulations": "Simulation Center", "/simulations/history": "Saved simulations", "/strategies": "Strategies", "/billing": "Billing", "/settings": "Settings" };
 export default function Topbar({ onOpenNavigation, menuButtonRef }) {
   const { organization, workspace, user, productMode } = useSession();
   const isPersonal = productMode === "personal";

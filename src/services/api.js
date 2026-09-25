@@ -176,6 +176,47 @@ export async function savePersonalDecision(payload) { return (await API.post("/p
 export async function updatePersonalDecision(decisionId, payload) { return (await API.patch(`/personal/decisions/${decisionId}`, payload)).data; }
 export async function deletePersonalDecision(decisionId) { return API.delete(`/personal/decisions/${decisionId}`); }
 
+// =====================================================
+// STRATEGY RESOURCES
+// =====================================================
+
+export async function listStrategyResources(limit = null) {
+
+    const response = await API.get(
+        "/strategy-resources",
+        { params: limit == null ? {} : { limit } }
+    );
+
+    return response.data;
+
+}
+
+export async function getStrategyResource(publicId) {
+
+    const response = await API.get(
+        `/strategy-resources/${encodeURIComponent(publicId)}`
+    );
+
+    return response.data;
+
+}
+
+export async function createStrategyFromDecision(
+    decisionPublicId,
+    title,
+    idempotencyKey
+) {
+
+    const response = await API.post(
+        `/personal/decisions/${encodeURIComponent(decisionPublicId)}/strategy`,
+        { title },
+        { headers: { "Idempotency-Key": idempotencyKey } }
+    );
+
+    return response.data;
+
+}
+
 export async function getOrganization(organizationId) { return (await API.get(`/organizations/${organizationId}`)).data; }
 export async function getOrganizationWorkspaces(organizationId) { return (await API.get(`/organizations/${organizationId}/workspaces`)).data; }
 export async function selectActiveWorkspace(workspaceId) { return (await API.post("/auth/context/workspace", { workspace_id: workspaceId })).data; }

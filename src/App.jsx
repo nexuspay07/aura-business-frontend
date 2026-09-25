@@ -28,6 +28,8 @@ import PersonalSettingsPage from "./pages/PersonalSettingsPage";
 import PersonalConversationsPage from "./pages/PersonalConversationsPage";
 import PersonalDecisionsPage from "./pages/PersonalDecisionsExperience";
 import PersonalDecisionDetailPage from "./pages/PersonalDecisionDetailExperience";
+import StrategiesPage from "./pages/StrategiesPage";
+import StrategyDetailPage from "./pages/StrategyDetailPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import PrivateAlphaNotice from "./pages/PrivateAlphaNotice";
@@ -232,6 +234,8 @@ function AppRoutes() {
             <Route path="/conversations" element={<ProtectedRoute><CapabilityRoute capability="ask_aura"><DashboardLayout><PersonalConversationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/decisions" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><PersonalDecisionsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/decisions/:decisionId" element={<ProtectedRoute><CapabilityRoute capability="decisions"><DashboardLayout><h2 className="sr-only">What I chose</h2><span className="sr-only">Aevric AI recommends</span><PersonalDecisionDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/strategies" element={<ProtectedRoute><DashboardLayout><StrategiesPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/strategies/:strategyPublicId" element={<ProtectedRoute><DashboardLayout><StrategyDetailPage /></DashboardLayout></ProtectedRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfUse />} />
