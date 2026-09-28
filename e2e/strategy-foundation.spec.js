@@ -22,6 +22,7 @@ test("authenticated shared navigation registers Strategy public routes", async (
   await page.getByRole("button", { name: "Open navigation" }).click();
   await expect(page.getByLabel("Primary navigation").getByRole("link", { name: "Strategies" })).toBeVisible();
 
+  await page.route("**/strategy-resources/strategy-public-uuid", route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ public_id: "strategy-public-uuid", title: "Strategy", current_revision: 1, resource_version: 1, archived: false, archived_at: null, created_at: "2026-09-25T12:00:00Z", updated_at: "2026-09-25T12:00:00Z", strategy: {} }) }));
   await page.goto("/strategies/strategy-public-uuid");
   await expect(page).toHaveURL(/\/strategies\/strategy-public-uuid$/);
   await expect(page.getByRole("heading", { name: "Strategy", exact: true })).toBeVisible();
