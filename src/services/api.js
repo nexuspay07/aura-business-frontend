@@ -217,6 +217,22 @@ export async function createStrategyFromDecision(
 
 }
 
+// =====================================================
+// CANONICAL SIMULATION RESOURCES
+// =====================================================
+
+export async function listSimulationResources(limit = null) {
+    return (await API.get("/simulation-resources", { params: limit == null ? {} : { limit } })).data;
+}
+
+export async function getSimulationResource(publicId) {
+    return (await API.get(`/simulation-resources/${encodeURIComponent(publicId)}`)).data;
+}
+
+export async function createStrategyStressTest(strategyPublicId, payload, idempotencyKey) {
+    return (await API.post(`/strategy-resources/${encodeURIComponent(strategyPublicId)}/simulations`, payload, { headers: { "Idempotency-Key": idempotencyKey } })).data;
+}
+
 export async function getOrganization(organizationId) { return (await API.get(`/organizations/${organizationId}`)).data; }
 export async function getOrganizationWorkspaces(organizationId) { return (await API.get(`/organizations/${organizationId}/workspaces`)).data; }
 export async function selectActiveWorkspace(workspaceId) { return (await API.post("/auth/context/workspace", { workspace_id: workspaceId })).data; }

@@ -1,6 +1,7 @@
-import { ArrowLeft, RotateCw } from "lucide-react";
+import { ArrowLeft, FlaskConical, RotateCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import StressTestDialog from "../components/simulation/StressTestDialog";
 import { formatDate, personal, StatusPill } from "../components/personal/PersonalUI";
 import { getStrategyResource } from "../services/api";
 
@@ -56,6 +57,8 @@ function ErrorState({ notFound, onRetry }) {
 
 export default function StrategyDetailPage() {
   const { strategyPublicId } = useParams();
+  const navigate = useNavigate();
+  const [stressTestOpen, setStressTestOpen] = useState(false);
   const [requestVersion, setRequestVersion] = useState(0);
   const requestKey = `${strategyPublicId}:${requestVersion}`;
   const requestedKey = useRef(null);
@@ -111,6 +114,7 @@ export default function StrategyDetailPage() {
           {resource.archived && <StatusPill>Archived</StatusPill>}
         </div>
         <h1 className={`${personal.title} mt-5 break-words`}>{resource.title || "Untitled Strategy"}</h1>
+        {!resource.archived && <button type="button" onClick={() => setStressTestOpen(true)} className="button simulation-primary mt-7"><FlaskConical size={18}/>Stress Test Strategy</button>}
       </header>
 
       <div className="mt-8 space-y-5 sm:mt-10">
@@ -160,6 +164,9 @@ export default function StrategyDetailPage() {
         {confidenceRationale.length > 0 && <Section title="Confidence Rationale"><TextList items={confidenceRationale} /></Section>}
         {evidenceReferences.length > 0 && <Section title="Evidence References"><ul className="space-y-3">{evidenceReferences.map((item, index) => <li className="break-words" key={`${item.evidence_id}-${index}`}>{item.citation_label || item.evidence_id}{item.citation_label && <span className="ml-2 text-sm text-slate-500">Reference {item.evidence_id}</span>}</li>)}</ul></Section>}
       </div>
+      {stressTestOpen && (
+        <StressTestDialog strategy={{ public_id: resource.public_id, title: resource.title }} onClose={() => setStressTestOpen(false)} onCreated={simulation => navigate(`/simulations/${encodeURIComponent(simulation.simulation_public_id)}`)}/>
+      )}
     </div>
   );
 }

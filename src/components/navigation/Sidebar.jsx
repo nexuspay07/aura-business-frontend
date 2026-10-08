@@ -21,20 +21,20 @@ import { hasCapability } from "../../product/capabilities";
 
 const menuItems = [
   {
-    title: "Home",
+    title: "Overview",
     icon: LayoutDashboard,
     path: "/dashboard",
     capability: "home",
   },
   {
-    title: "Decision Center",
-    personalTitle: "Aevric AI",
+    title: "Ask",
+    personalTitle: "Ask",
     icon: BrainCircuit,
     path: "/intelligence",
     capability: "ask_aura",
   },
   {
-    title: "My Decisions",
+    title: "Decisions",
     personalTitle: "Decisions",
     icon: Sparkles,
     path: "/decisions",
@@ -80,7 +80,7 @@ const menuItems = [
     title: "Simulations",
     icon: FlaskConical,
     path: "/simulations",
-    capability: "simulations",
+    capability: null,
   },
   {
     title: "Billing",
@@ -148,7 +148,7 @@ export default function Sidebar({
 
       <aside
         aria-label="Primary navigation"
-        className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/[.08] bg-[#0a0d13] text-slate-200 shadow-2xl transition-transform duration-200 lg:static lg:translate-x-0 lg:shadow-none ${
+        className={`aevric-sidebar fixed inset-y-0 left-0 z-40 flex w-72 flex-col shadow-2xl transition-transform duration-200 lg:static lg:translate-x-0 lg:shadow-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

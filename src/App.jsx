@@ -20,7 +20,8 @@ import OrganizationDetailPage from "./pages/OrganizationDetailPage";
 import WorkspacesPage from "./pages/WorkspacesPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import MarketplaceDetailPage from "./pages/MarketplaceDetailPage";
-import SimulationsPage from "./pages/SimulationsPage";
+import SimulationsPage from "./pages/SimulationResourcesPage";
+import SimulationDetailPage from "./pages/SimulationDetailPage";
 import SimulationHistoryPage from "./pages/SimulationHistoryPage";
 import BillingPage from "./pages/BillingPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -226,7 +227,8 @@ function AppRoutes() {
             <Route path="/workspaces/:workspaceId" element={<ProtectedRoute><CapabilityRoute capability="workspaces"><DashboardLayout><WorkspacesPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/marketplace" element={<ProtectedRoute><CapabilityRoute capability="marketplace"><DashboardLayout><MarketplacePage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/marketplace/:itemId" element={<ProtectedRoute><CapabilityRoute capability="marketplace"><DashboardLayout><MarketplaceDetailPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
-            <Route path="/simulations" element={<ProtectedRoute><CapabilityRoute capability="simulations"><DashboardLayout><SimulationsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
+            <Route path="/simulations" element={<ProtectedRoute><DashboardLayout><SimulationsPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/simulations/:simulationPublicId" element={<ProtectedRoute><DashboardLayout><SimulationDetailPage /></DashboardLayout></ProtectedRoute>} />
             <Route path="/simulations/history" element={<ProtectedRoute><CapabilityRoute capability="simulations"><DashboardLayout><SimulationHistoryPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/billing" element={<ProtectedRoute><CapabilityRoute capability="billing"><DashboardLayout><BillingPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />
             <Route path="/settings/*" element={<ProtectedRoute><CapabilityRoute capability="business_settings"><DashboardLayout><SettingsPage /></DashboardLayout></CapabilityRoute></ProtectedRoute>} />

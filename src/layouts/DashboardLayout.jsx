@@ -14,7 +14,7 @@ export default function DashboardLayout({
 
   return (
 
-    <div className="flex min-h-screen bg-[#080a0f] text-slate-100">
+    <div className="aevric-shell flex min-h-screen">
 
       <Sidebar mobileOpen={mobileNavigationOpen} onClose={closeNavigation} />
 
@@ -22,7 +22,7 @@ export default function DashboardLayout({
 
         <Topbar menuButtonRef={menuButtonRef} onOpenNavigation={() => setMobileNavigationOpen(true)} />
 
-        <main className="flex-1 overflow-auto p-5 sm:p-8">
+        <main className="aevric-main flex-1 overflow-auto p-5 sm:p-8">
 
           {children}
 

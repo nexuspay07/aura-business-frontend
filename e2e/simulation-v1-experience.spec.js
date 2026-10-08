@@ -1,0 +1,58 @@
+import { expect, test } from "@playwright/test";
+
+const identity = { user: { id: 2, email: "person@example.test", full_name: "Morgan Lee" }, organization: { id: 2, name: "Personal Space", account_type: "personal" }, workspace: { id: 2, name: "My Workspace" }, product_mode: "personal", capabilities: ["home", "personal_home", "ask_aura", "decisions"] };
+const strategy = { public_id: "10000000-0000-4000-8000-000000000001", title: "Reliable expansion", current_revision: 3, archived: false, created_at: "2026-10-01T12:00:00Z", updated_at: "2026-10-02T12:00:00Z", strategy: { objective: "Expand without reducing reliability.", chosen_direction: "Stabilize then expand.", approach: "Sequence work.", phases: [], constraints: [], resources: [], risks: [], success_measures: [], assumptions: [], uncertainties: [], change_conditions: [], confidence: "MODERATE", confidence_rationale: [], evidence_references: [] } };
+const simulation = { simulation_public_id: "20000000-0000-4000-8000-000000000001", simulation_type: "strategy_stress_test", title: "Reliable expansion stress test", source_strategy_public_id: strategy.public_id, source_strategy_revision: 3, source_decision_snapshot_public_id: null, run_number: 1, created_at: "2026-10-03T12:00:00Z", archived: false, result: { scenario_results: [{ scenario_key: "supplier_costs", sensitivity: "HIGH", elements_under_stress: [{ statement: "Operating margin absorbs sustained pressure.", provenance: "MODEL_GENERATED", evidence_refs: [] }], plausible_effects: [{ statement: "Expansion pacing may slow.", provenance: "MODEL_GENERATED", evidence_refs: [] }], constraint_conflicts: [], risk_observations: [], mitigation_observations: [{ statement: "Sequence commitments.", provenance: "DERIVED", evidence_refs: [] }], phase_sensitivities: [], upside_conditions: [], downside_conditions: [], change_condition_triggers: [] }], cross_scenario_comparison: [{ statement: "Reliability remains the gating condition.", provenance: "DERIVED", evidence_refs: [] }], assumptions_used: [{ statement: "Staffing remains fixed.", provenance: "USER_SUPPLIED", evidence_refs: [] }], uncertainties: [{ statement: "Supplier duration remains unknown.", provenance: "MODEL_GENERATED", evidence_refs: [] }], limitations: [{ code: "not_calibrated", statement: "Scenario analysis is not calibrated forecasting.", provenance: "SYSTEM" }], confidence: "MODERATE", confidence_rationale: ["Conditions are explicit but incomplete."], evidence_refs: [], simulation_type: "strategy_stress_test", schema_version: 1 } };
+
+async function authenticate(page) {
+  await page.addInitScript(() => localStorage.setItem("aura_token", "test"));
+  await page.route("**/auth/me", route => route.fulfill({ contentType: "application/json", body: JSON.stringify(identity) }));
+  await page.route("**/organizations", route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ organizations: [identity.organization] }) }));
+}
+
+test("light intelligence shell exposes first-class capabilities and mobile navigation", async ({ page }) => {
+  await authenticate(page); await page.route("**/personal/decisions", route => route.fulfill({ json: [] }));
+  await page.setViewportSize({ width: 390, height: 844 }); await page.goto("/dashboard");
+  await expect(page.getByRole("heading", { name: "Your intelligence workspace" })).toBeVisible();
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  for (const name of ["Overview", "Ask", "Decisions", "Strategies", "Simulations"]) await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  await expect(page.locator(".aevric-shell")).toHaveCSS("color", "rgb(20, 33, 58)");
+  await expect(page.locator("body")).not.toContainText("Aura");
+});
+
+test("Simulation list handles loading, data, empty, and detail navigation", async ({ page }) => {
+  await authenticate(page); await page.route("**/simulation-resources", async route => { await new Promise(resolve => setTimeout(resolve, 100)); await route.fulfill({ json: { items: [{ ...simulation, current_run_number: 1, updated_at: simulation.created_at }] } }); });
+  await page.goto("/simulations"); await expect(page.getByRole("status")).toContainText("Loading saved stress tests");
+  await expect(page.getByRole("heading", { name: simulation.title })).toBeVisible(); await expect(page.getByText("Revision 3")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Reliable expansion stress test/ })).toHaveAttribute("href", `/simulations/${simulation.simulation_public_id}`);
+});
+
+test("Simulation list empty and safe error states", async ({ page }) => {
+  await authenticate(page); let error = false; await page.route("**/simulation-resources", route => error ? route.fulfill({ status: 503, json: { detail: "private database" } }) : route.fulfill({ json: { items: [] } }));
+  await page.goto("/simulations"); await expect(page.getByRole("heading", { name: "No stress tests yet" })).toBeVisible();
+  error = true; await page.reload(); await expect(page.getByRole("alert")).toContainText("Simulations could not be loaded"); await expect(page.locator("body")).not.toContainText("private database");
+});
+
+test("Simulation detail is structured, qualitative, trustworthy, and responsive", async ({ page }) => {
+  await authenticate(page); await page.route("**/simulation-resources/**", route => route.fulfill({ json: simulation }));
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 768, height: 900 }, { width: 360, height: 780 }]) {
+    await page.setViewportSize(viewport); await page.goto(`/simulations/${simulation.simulation_public_id}`);
+    await expect(page.getByRole("heading", { name: simulation.title })).toBeVisible(); await expect(page.getByText("Supplier Costs")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Cross-scenario comparison" })).toBeVisible(); await expect(page.getByRole("heading", { name: "Assumptions" })).toBeVisible(); await expect(page.getByRole("heading", { name: "Uncertainties" })).toBeVisible();
+    await expect(page.getByText("User supplied")).toBeVisible(); await expect(page.getByText(/not a calibrated forecast or probability prediction/)).toBeVisible();
+    const body = await page.locator("body").innerText(); expect(body).not.toContain("65%"); expect(body).not.toContain("canonical_result_json"); expect(body).not.toContain(JSON.stringify(simulation.result));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  }
+});
+
+test("Strategy Stress Test form sends canonical fields and preserves idempotency key on retry", async ({ page }) => {
+  await authenticate(page); await page.route(`**/strategy-resources/${strategy.public_id}`, route => route.fulfill({ json: strategy }));
+  const requests = []; await page.route(`**/strategy-resources/${strategy.public_id}/simulations`, async route => { requests.push({ headers: route.request().headers(), body: route.request().postDataJSON() }); if (requests.length === 1) await route.fulfill({ status: 503, json: { detail: "private provider" } }); else await route.fulfill({ status: 201, json: simulation }); });
+  await page.route(`**/simulation-resources/${simulation.simulation_public_id}`, route => route.fulfill({ json: simulation }));
+  await page.goto(`/strategies/${strategy.public_id}`); await page.getByRole("button", { name: "Stress Test Strategy" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible(); await page.getByLabel("Stable key").fill("supplier_costs"); await page.getByLabel("Name").fill("Supplier costs"); await page.getByLabel("Description").fill("Supplier pricing rises."); await page.getByLabel("Changed conditions").fill("Costs increase materially."); await page.getByLabel("Qualitative severity").selectOption("HIGH");
+  await page.getByRole("button", { name: "Add assumption" }).click(); await page.getByLabel("Assumption 1").fill("Staffing remains fixed."); await page.getByLabel("Related scenario").selectOption("supplier_costs");
+  await page.getByRole("button", { name: "Create stress test" }).click(); await expect(page.getByRole("alert")).toContainText("temporarily unavailable"); await page.getByRole("button", { name: "Retry stress test" }).click();
+  await expect(page).toHaveURL(`/simulations/${simulation.simulation_public_id}`); expect(requests).toHaveLength(2); expect(requests[0].headers["idempotency-key"]).toBe(requests[1].headers["idempotency-key"]); expect(requests[0].body).toEqual(requests[1].body);
+  const sent = JSON.stringify(requests[0].body); for (const forbidden of ["provenance", "owner_user_id", "organization_id", "workspace_id", "strategy_revision", "provider", "model"]) expect(sent).not.toContain(forbidden);
+});
