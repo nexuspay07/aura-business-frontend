@@ -166,7 +166,7 @@ export default function StrategyDetailPage() {
         {evidenceReferences.length > 0 && <Section title="Evidence References"><ul className="space-y-3">{evidenceReferences.map((item, index) => <li className="break-words" key={`${item.evidence_id}-${index}`}>{item.citation_label || item.evidence_id}{item.citation_label && <span className="ml-2 text-sm text-slate-500">Reference {item.evidence_id}</span>}</li>)}</ul></Section>}
       </div>
       {stressTestOpen && (
-        <StressTestDialog strategy={{ public_id: resource.public_id, title: resource.title }} returnFocusRef={stressTestTrigger} onClose={() => setStressTestOpen(false)} onCreated={simulation => navigate(`/simulations/${encodeURIComponent(simulation.simulation_public_id)}`)}/>
+        <StressTestDialog strategy={{ public_id: resource.public_id, title: resource.title, strategy }} returnFocusRef={stressTestTrigger} onClose={() => setStressTestOpen(false)} onCreated={simulation => navigate(`/simulations/${encodeURIComponent(simulation.simulation_public_id)}`)}/>
       )}
     </div>
   );
