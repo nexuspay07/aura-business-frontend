@@ -87,3 +87,15 @@ test("Stress Test form validates accessibly and enforces the six-change boundary
   const add = page.getByRole("button", { name: "Add another change" }); for (let count = 1; count < 6; count += 1) await add.click(); await expect(add).toHaveCount(0); await page.getByRole("button", { name: "Remove change 6" }).click(); await expect(page.getByRole("button", { name: "Add another change" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
+
+test("Stress Test loading and retry feedback remain visible above actions", async ({ page }) => {
+  await authenticate(page); await page.route(`**/strategy-resources/${strategy.public_id}`, route => route.fulfill({ json: strategy }));
+  for (const viewport of [{ width: 360, height: 780 }, { width: 1440, height: 1000 }]) {
+    let releaseResponse;
+    await page.setViewportSize(viewport); await page.route(`**/strategy-resources/${strategy.public_id}/simulations`, async route => { await new Promise(resolve => { releaseResponse = resolve; }); await route.fulfill({ status: 503, json: { detail: "private provider" } }); }, { times: 1 });
+    await page.goto(`/strategies/${strategy.public_id}`); await page.getByRole("button", { name: "Stress Test Strategy" }).click(); await page.getByLabel("What might change?").selectOption("timeline_change"); await page.getByLabel("Describe what would happen").fill("The implementation deadline moves back by one month."); await page.getByText("Moderate", { exact: true }).click(); await page.getByRole("button", { name: "Create stress test" }).click();
+    const status = page.getByRole("status"); const footer = page.locator(".stress-dialog-actions footer"); await expect(status).toBeVisible(); await expect(page.getByRole("button", { name: "Stress-testing your strategy..." })).toBeVisible(); await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
+    let feedbackBox = await status.boundingBox(); let footerBox = await footer.boundingBox(); expect(feedbackBox.y + feedbackBox.height).toBeLessThanOrEqual(footerBox.y); releaseResponse();
+    const alert = page.getByRole("alert"); await expect(alert).toContainText("temporarily unavailable"); await expect(page.getByRole("button", { name: "Retry stress test" })).toBeVisible(); feedbackBox = await alert.boundingBox(); footerBox = await footer.boundingBox(); expect(feedbackBox.y + feedbackBox.height).toBeLessThanOrEqual(footerBox.y); expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  }
+});
